@@ -865,7 +865,7 @@ elseif(WIN32)
 elseif(APPLE)
 	include(platform_apple)
 endif()
-
+include_directories(/usr/local/Cellar/libpng/1.5.13/include/)
 #-----------------------------------------------------------------------------
 # Common.
 
@@ -1558,8 +1558,8 @@ endif()
 
 # Include warnings first, so its possible to disable them with user defined flags
 # eg: -Wno-uninitialized
-set(CMAKE_C_FLAGS "${C_WARNINGS} ${CMAKE_C_FLAGS} ${PLATFORM_CFLAGS}")
-set(CMAKE_CXX_FLAGS "${CXX_WARNINGS} ${CMAKE_CXX_FLAGS} ${PLATFORM_CFLAGS}")
+set(CMAKE_C_FLAGS "${C_WARNINGS} ${CMAKE_C_FLAGS} ${PLATFORM_CFLAGS} ")
+set(CMAKE_CXX_FLAGS "${CXX_WARNINGS} ${CMAKE_CXX_FLAGS} ${PLATFORM_CFLAGS} ")
 
 # defined above, platform specific but shared names
 mark_as_advanced(
