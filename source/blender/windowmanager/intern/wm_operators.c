@@ -1223,7 +1223,7 @@ int WM_operator_confirm_message_ex(bContext *C, wmOperator *op,
 
 	pup = UI_popup_menu_begin(C, title, icon);
 	layout = UI_popup_menu_layout(pup);
-	uiItemFullO_ptr(layout, op->type, message, ICON_NONE, properties, WM_OP_EXEC_REGION_WIN, 0);
+	uiItemFullO_ptr(layout, op->type, message, ICON_NONE, properties, WM_OP_EXEC_REGION_WIN, 0, NULL);
 	UI_popup_menu_end(C, pup);
 	
 	return OPERATOR_INTERFACE;
@@ -1406,13 +1406,13 @@ static uiBlock *wm_block_create_redo(bContext *C, ARegion *ar, void *arg_op)
 
 	if (op->type->flag & OPTYPE_MACRO) {
 		for (op = op->macro.first; op; op = op->next) {
-			uiLayoutOperatorButs(C, layout, op, NULL, 'H', UI_LAYOUT_OP_SHOW_TITLE);
+			uiTemplateOperatorPropertyButs(C, layout, op, NULL, 'H', UI_TEMPLATE_OP_PROPS_SHOW_TITLE);
 			if (op->next)
 				uiItemS(layout);
 		}
 	}
 	else {
-		uiLayoutOperatorButs(C, layout, op, NULL, 'H', UI_LAYOUT_OP_SHOW_TITLE);
+		uiTemplateOperatorPropertyButs(C, layout, op, NULL, 'H', UI_TEMPLATE_OP_PROPS_SHOW_TITLE);
 	}
 	
 	UI_block_bounds_set_popup(block, 4, 0, 0);
@@ -1433,7 +1433,7 @@ static void dialog_exec_cb(bContext *C, void *arg1, void *arg2)
 	wmOpPopUp *data = arg1;
 	uiBlock *block = arg2;
 
-	/* Explicitly set UI_RETURN_OK flag, otherwise the menu might be cancelled
+	/* Explicitly set UI_RETURN_OK flag, otherwise the menu might be canceled
 	 * in case WM_operator_call_ex exits/reloads the current file (T49199). */
 	UI_popup_menu_retval_set(block, UI_RETURN_OK, true);
 
@@ -1481,7 +1481,7 @@ static uiBlock *wm_block_dialog_create(bContext *C, ARegion *ar, void *userData)
 
 	layout = UI_block_layout(block, UI_LAYOUT_VERTICAL, UI_LAYOUT_PANEL, 0, 0, data->width, data->height, 0, style);
 	
-	uiLayoutOperatorButs(C, layout, op, NULL, 'H', UI_LAYOUT_OP_SHOW_TITLE);
+	uiTemplateOperatorPropertyButs(C, layout, op, NULL, 'H', UI_TEMPLATE_OP_PROPS_SHOW_TITLE);
 	
 	/* clear so the OK button is left alone */
 	UI_block_func_set(block, NULL, NULL, NULL);
@@ -1520,7 +1520,7 @@ static uiBlock *wm_operator_ui_create(bContext *C, ARegion *ar, void *userData)
 	layout = UI_block_layout(block, UI_LAYOUT_VERTICAL, UI_LAYOUT_PANEL, 0, 0, data->width, data->height, 0, style);
 
 	/* since ui is defined the auto-layout args are not used */
-	uiLayoutOperatorButs(C, layout, op, NULL, 'V', 0);
+	uiTemplateOperatorPropertyButs(C, layout, op, NULL, 'V', 0);
 
 	UI_block_func_set(block, NULL, NULL, NULL);
 
@@ -1892,10 +1892,7 @@ static uiBlock *wm_block_create_splash(bContext *C, ARegion *ar, void *UNUSED(ar
 	UI_block_emboss_set(block, UI_EMBOSS);
 	/* show the splash menu (containing interaction presets), using python */
 	if (mt) {
-		Menu menu = {NULL};
-		menu.layout = layout;
-		menu.type = mt;
-		mt->draw(C, &menu);
+		UI_menutype_draw(C, mt, layout);
 
 //		wmWindowManager *wm = CTX_wm_manager(C);
 //		uiItemM(layout, C, "USERPREF_MT_keyconfigs", U.keyconfigstr, ICON_NONE);
@@ -1922,13 +1919,11 @@ static uiBlock *wm_block_create_splash(bContext *C, ARegion *ar, void *UNUSED(ar
 	              "https://docs.blender.org/manual/en/dev/");
 	uiItemStringO(col, IFACE_("Blender Website"), ICON_URL, "WM_OT_url_open", "url", "http://www.blender.org");
 	if (STREQ(STRINGIFY(BLENDER_VERSION_CYCLE), "release")) {
-		BLI_snprintf(url, sizeof(url), "http://www.blender.org/documentation/blender_python_api_%d_%d"
-		                               STRINGIFY(BLENDER_VERSION_CHAR) "_release",
+		BLI_snprintf(url, sizeof(url), "https://docs.blender.org/api/%d.%d"STRINGIFY(BLENDER_VERSION_CHAR),
 		             BLENDER_VERSION / 100, BLENDER_VERSION % 100);
 	}
 	else {
-		BLI_snprintf(url, sizeof(url), "http://www.blender.org/documentation/blender_python_api_%d_%d_%d",
-		             BLENDER_VERSION / 100, BLENDER_VERSION % 100, BLENDER_SUBVERSION);
+		BLI_snprintf(url, sizeof(url), "https://docs.blender.org/api/master");
 	}
 	uiItemStringO(col, IFACE_("Python API Reference"), ICON_URL, "WM_OT_url_open", "url", url);
 	uiItemL(col, "", ICON_NONE);
@@ -1954,10 +1949,7 @@ static uiBlock *wm_block_create_splash(bContext *C, ARegion *ar, void *UNUSED(ar
 	
 	mt = WM_menutype_find("USERPREF_MT_splash_footer", false);
 	if (mt) {
-		Menu menu = {NULL};
-		menu.layout = uiLayoutColumn(layout, false);
-		menu.type = mt;
-		mt->draw(C, &menu);
+		UI_menutype_draw(C, mt, uiLayoutColumn(layout, false));
 	}
 
 	UI_block_bounds_set_centered(block, 0);
@@ -3278,7 +3270,7 @@ static void previews_id_ensure(bContext *C, Scene *scene, ID *id)
 
 	/* Only preview non-library datablocks, lib ones do not pertain to this .blend file!
 	 * Same goes for ID with no user. */
-	if (!ID_IS_LINKED_DATABLOCK(id) && (id->us != 0)) {
+	if (!ID_IS_LINKED(id) && (id->us != 0)) {
 		UI_id_icon_render(C, scene, id, false, false);
 		UI_id_icon_render(C, scene, id, true, false);
 	}
@@ -3868,7 +3860,7 @@ static const EnumPropertyItem *rna_id_itemf(bContext *UNUSED(C), PointerRNA *UNU
 	int i = 0;
 
 	for (; id; id = id->next) {
-		if (local == false || !ID_IS_LINKED_DATABLOCK(id)) {
+		if (local == false || !ID_IS_LINKED(id)) {
 			item_tmp.identifier = item_tmp.name = id->name + 2;
 			item_tmp.value = i++;
 			RNA_enum_item_add(&item, &totitem, &item_tmp);

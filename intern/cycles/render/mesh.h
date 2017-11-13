@@ -250,6 +250,8 @@ public:
 	size_t face_offset;
 	size_t corner_offset;
 
+	size_t attr_map_offset;
+
 	size_t num_subd_verts;
 
 	/* Functions */
@@ -321,8 +323,6 @@ public:
 
 class MeshManager {
 public:
-	BVH *bvh;
-
 	bool need_update;
 	bool need_flags_update;
 
@@ -368,7 +368,6 @@ protected:
 	                       Progress& progress);
 
 	void device_update_displacement_images(Device *device,
-	                                       DeviceScene *dscene,
 	                                       Scene *scene,
 	                                       Progress& progress);
 };
