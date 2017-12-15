@@ -53,12 +53,22 @@
 #include "util/util_system.h"
 #include "util/util_thread.h"
 
+#include "bcd/src/BayesianCollaborativeDenoiser/SamplesAccumulator.h"
+#include "bcd/src/Common/ImageIO.h"
+#include "bcd/src/Common/DeepImage.h"
+#include "bcd/src/Common/Utils.h"
+
 CCL_NAMESPACE_BEGIN
 
 class CPUDevice;
 
 /* Has to be outside of the class to be shared across template instantiations. */
 static const char *logged_architecture = "";
+
+// Shane
+bcd::HistogramParameters histoParams;
+bcd::SamplesAccumulator *sAcc; // (options.width, options.height, histoParams);
+// Shane */
 
 template<typename F>
 class KernelFunctions {
@@ -459,6 +469,23 @@ public:
 		}
 	};
 
+	// Shane
+	void bcd_denoise(bcd::SamplesAccumulator *sAcc){
+
+		bcd::SamplesStatisticsImages samplesStats = sAcc->extractSamplesStatistics();
+		bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage, samplesStats.m_nbOfSamplesImage);
+
+		samplesStats.m_histoImage.clearAndFreeMemory();
+		samplesStats.m_nbOfSamplesImage.clearAndFreeMemory();
+		string outputCol = "/Users/Shane/Documents/PRIM/bcd/build";
+		string outputCov = outputCol + "_cov";
+		string outputHist = outputCol + "_hist";
+		bcd::ImageIO::writeEXR(samplesStats.m_meanImage, outputCol.c_str());
+		bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
+		bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
+	}
+	// Shane */
+
 	bool denoising_set_tiles(device_ptr *buffers, DenoisingTask *task)
 	{
 		TilesInfo *tiles = (TilesInfo*) task->tiles_mem.host_pointer;
@@ -693,6 +720,7 @@ public:
 		int start_sample = tile.start_sample;
 		int end_sample = tile.start_sample + tile.num_samples;
 
+		sAcc = new bcd::SamplesAccumulator(task.w, task.h, histoParams);
 		for(int sample = start_sample; sample < end_sample; sample++) {
 			if(task.get_cancel() || task_pool.canceled()) {
 				if(task.need_finish_queue == false)
@@ -703,6 +731,9 @@ public:
 				for(int x = tile.x; x < tile.x + tile.w; x++) {
 					path_trace_kernel()(kg, render_buffer,
 					                    sample, x, y, tile.offset, tile.stride);
+					// Shane
+					sAcc->addSample(x, y, render_buffer[0], render_buffer[1], render_buffer[2]);
+					// Shane */
 				}
 			}
 
@@ -780,7 +811,9 @@ public:
 				}
 			}
 			else if(tile.task == RenderTile::DENOISE) {
-				denoise(task, denoising, tile);
+				// Shane
+				// denoise(task, tile);
+				// Shane */ 
 			}
 
 			task.release_tile(tile);
@@ -790,7 +823,9 @@ public:
 					break;
 			}
 		}
-
+		// Shane
+		bcd_denoise(sAcc);
+		// Shane */
 		thread_kernel_globals_free((KernelGlobals*)kgbuffer.device_pointer);
 		kg->~KernelGlobals();
 		kgbuffer.free();
