@@ -2,6 +2,8 @@
 set(INC
 	..
 	../../glew-mx
+	../bcd/src/BayesianCollaborativeDenoiser
+	../bcd/src/Common
 )
 
 set(INC_SYS
