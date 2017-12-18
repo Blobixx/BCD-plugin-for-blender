@@ -53,10 +53,10 @@
 #include "util/util_system.h"
 #include "util/util_thread.h"
 
-#include "bcd/src/BayesianCollaborativeDenoiser/SamplesAccumulator.h"
-#include "bcd/src/Common/ImageIO.h"
-#include "bcd/src/Common/DeepImage.h"
-#include "bcd/src/Common/Utils.h"
+#include "SamplesAccumulator.h"
+#include "ImageIO.h"
+#include "DeepImage.h"
+#include "Utils.h"
 
 CCL_NAMESPACE_BEGIN
 
@@ -65,10 +65,6 @@ class CPUDevice;
 /* Has to be outside of the class to be shared across template instantiations. */
 static const char *logged_architecture = "";
 
-// Shane
-bcd::HistogramParameters histoParams;
-bcd::SamplesAccumulator *sAcc; // (options.width, options.height, histoParams);
-// Shane */
 
 template<typename F>
 class KernelFunctions {
@@ -172,6 +168,10 @@ class CPUDevice : public Device
 public:
 	TaskPool task_pool;
 	KernelGlobals kernel_globals;
+	// Shane
+	bcd::HistogramParameters histoParams;
+	bcd::SamplesAccumulator *sAcc; // (options.width, options.height, histoParams);
+	// Shane */
 
 	device_vector<TextureInfo> texture_info;
 	bool need_texture_info;
@@ -253,6 +253,12 @@ public:
 		}
 		need_texture_info = false;
 
+		// Shane
+		histoParams.m_nbOfBins = 20;
+		histoParams.m_gamma = 2.2f;
+		histoParams.m_maxValue = 2.5f;
+		sAcc = NULL;
+		// Shane */
 #define REGISTER_SPLIT_KERNEL(name) split_kernels[#name] = KernelFunctions<void(*)(KernelGlobals*, KernelData*)>(KERNEL_FUNCTIONS(name))
 		REGISTER_SPLIT_KERNEL(path_init);
 		REGISTER_SPLIT_KERNEL(scene_intersect);
@@ -732,7 +738,7 @@ public:
 					path_trace_kernel()(kg, render_buffer,
 					                    sample, x, y, tile.offset, tile.stride);
 					// Shane
-					sAcc->addSample(x, y, render_buffer[0], render_buffer[1], render_buffer[2]);
+					// sAcc->addSample(x, y, render_buffer[0], render_buffer[1], render_buffer[2]);
 					// Shane */
 				}
 			}

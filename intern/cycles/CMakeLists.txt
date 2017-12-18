@@ -256,7 +256,7 @@ if(WITH_CYCLES_STANDALONE OR WITH_CYCLES_NETWORK)
 endif()
 
 add_subdirectory(bvh)
-add_subdirectory(bcd)
+# add_subdirectory(bcd)
 add_subdirectory(device)
 add_subdirectory(doc)
 add_subdirectory(graph)
