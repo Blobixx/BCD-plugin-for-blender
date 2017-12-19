@@ -257,7 +257,7 @@ public:
 		histoParams.m_nbOfBins = 20;
 		histoParams.m_gamma = 2.2f;
 		histoParams.m_maxValue = 2.5f;
-		sAcc = NULL;
+		/*sAcc = NULL;
 		// Shane */
 #define REGISTER_SPLIT_KERNEL(name) split_kernels[#name] = KernelFunctions<void(*)(KernelGlobals*, KernelData*)>(KERNEL_FUNCTIONS(name))
 		REGISTER_SPLIT_KERNEL(path_init);
@@ -476,9 +476,9 @@ public:
 	};
 
 	// Shane
-	void bcd_denoise(bcd::SamplesAccumulator *sAcc){
+	void bcd_denoise(bcd::SamplesAccumulator *i_sAcc){
 
-		bcd::SamplesStatisticsImages samplesStats = sAcc->extractSamplesStatistics();
+		bcd::SamplesStatisticsImages samplesStats = i_sAcc->extractSamplesStatistics();
 		bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage, samplesStats.m_nbOfSamplesImage);
 
 		samplesStats.m_histoImage.clearAndFreeMemory();
@@ -726,7 +726,9 @@ public:
 		int start_sample = tile.start_sample;
 		int end_sample = tile.start_sample + tile.num_samples;
 
-		sAcc = new bcd::SamplesAccumulator(task.w, task.h, histoParams);
+		// Shane
+		// sAcc = new bcd::SamplesAccumulator(task.w, task.h, histoParams);
+
 		for(int sample = start_sample; sample < end_sample; sample++) {
 			if(task.get_cancel() || task_pool.canceled()) {
 				if(task.need_finish_queue == false)
@@ -737,8 +739,9 @@ public:
 				for(int x = tile.x; x < tile.x + tile.w; x++) {
 					path_trace_kernel()(kg, render_buffer,
 					                    sample, x, y, tile.offset, tile.stride);
-					// Shane
-					// sAcc->addSample(x, y, render_buffer[0], render_buffer[1], render_buffer[2]);
+					 // Shane
+					/*// sAcc->addSample(x, y, render_buffer[0], render_buffer[1], render_buffer[2]);
+					sAcc->addSample(x, y, 0.0f, 1.0f, 0.0f);
 					// Shane */
 				}
 			}
@@ -791,7 +794,9 @@ public:
 		kgbuffer.alloc_to_device(1);
 
 		KernelGlobals *kg = new ((void*) kgbuffer.device_pointer) KernelGlobals(thread_kernel_globals_init());
-
+		// Shane
+		sAcc = new bcd::SamplesAccumulator(task.w, task.h, histoParams);
+		// Shane */
 		CPUSplitKernel *split_kernel = NULL;
 		if(use_split_kernel) {
 			split_kernel = new CPUSplitKernel(this);
@@ -817,9 +822,9 @@ public:
 				}
 			}
 			else if(tile.task == RenderTile::DENOISE) {
-				// Shane
-				// denoise(task, tile);
-				// Shane */ 
+				/* // Shane
+				denoise(task, tile);
+				// Shane */
 			}
 
 			task.release_tile(tile);
@@ -829,7 +834,7 @@ public:
 					break;
 			}
 		}
-		// Shane
+		/*// Shane
 		bcd_denoise(sAcc);
 		// Shane */
 		thread_kernel_globals_free((KernelGlobals*)kgbuffer.device_pointer);
