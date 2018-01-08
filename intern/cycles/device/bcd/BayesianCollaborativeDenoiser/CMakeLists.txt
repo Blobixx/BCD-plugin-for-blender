@@ -47,7 +47,7 @@ endif(required_library_is_missing)
 
 
 SET(CMAKE_CXX_COMPILER "/usr/local/opt/llvm/bin/clang++")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -g")
 ADD_COMPILE_OPTIONS("-std=c++11")
 
 SET(src_files

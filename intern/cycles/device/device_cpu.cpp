@@ -53,10 +53,10 @@
 #include "util/util_system.h"
 #include "util/util_thread.h"
 
-#include "SamplesAccumulator.h"
-#include "ImageIO.h"
-#include "DeepImage.h"
-#include "Utils.h"
+// #include "SamplesAccumulator.h"
+// #include "ImageIO.h"
+// #include "DeepImage.h"
+// #include "Utils.h"
 
 CCL_NAMESPACE_BEGIN
 
@@ -168,14 +168,16 @@ class CPUDevice : public Device
 public:
 	TaskPool task_pool;
 	KernelGlobals kernel_globals;
-	// Shane
-	bcd::HistogramParameters histoParams;
-	bcd::SamplesAccumulator *sAcc; // (options.width, options.height, histoParams);
-	// Shane */
 
 	device_vector<TextureInfo> texture_info;
 	bool need_texture_info;
 
+	/* // Shane
+	bcd::HistogramParameters histoParams;
+	bcd::SamplesAccumulator *sAcc;
+	bool bcd_denoise = false;
+	// bcd::SamplesStatisticsImages *sStats;
+	// Shane */
 #ifdef WITH_OSL
 	OSLGlobals osl_globals;
 #endif
@@ -220,6 +222,7 @@ public:
 	CPUDevice(DeviceInfo& info_, Stats &stats_, bool background_)
 	: Device(info_, stats_, background_),
 	  texture_info(this, "__texture_info", MEM_TEXTURE),
+	  // histoParams(),
 #define REGISTER_KERNEL(name) name ## _kernel(KERNEL_FUNCTIONS(name))
 	  REGISTER_KERNEL(path_trace),
 	  REGISTER_KERNEL(convert_to_half_float),
@@ -254,10 +257,10 @@ public:
 		need_texture_info = false;
 
 		// Shane
-		histoParams.m_nbOfBins = 20;
-		histoParams.m_gamma = 2.2f;
-		histoParams.m_maxValue = 2.5f;
-		/*sAcc = NULL;
+		// histoParams.m_nbOfBins = 20;
+		// histoParams.m_gamma = 2.2f;
+		// histoParams.m_maxValue = 2.5f;
+		// sAcc = sAcc = new bcd::SamplesAccumulator(1920, 1080, histoParams);;
 		// Shane */
 #define REGISTER_SPLIT_KERNEL(name) split_kernels[#name] = KernelFunctions<void(*)(KernelGlobals*, KernelData*)>(KERNEL_FUNCTIONS(name))
 		REGISTER_SPLIT_KERNEL(path_init);
@@ -457,6 +460,8 @@ public:
 
 	void thread_run(DeviceTask *task)
 	{
+
+
 		if(task->type == DeviceTask::RENDER) {
 			thread_render(*task);
 		}
@@ -468,29 +473,13 @@ public:
 
 	class CPUDeviceTask : public DeviceTask {
 	public:
+
 		CPUDeviceTask(CPUDevice *device, DeviceTask& task)
 		: DeviceTask(task)
 		{
 			run = function_bind(&CPUDevice::thread_run, device, this);
 		}
 	};
-
-	// Shane
-	void bcd_denoise(bcd::SamplesAccumulator *i_sAcc){
-
-		bcd::SamplesStatisticsImages samplesStats = i_sAcc->extractSamplesStatistics();
-		bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage, samplesStats.m_nbOfSamplesImage);
-
-		samplesStats.m_histoImage.clearAndFreeMemory();
-		samplesStats.m_nbOfSamplesImage.clearAndFreeMemory();
-		string outputCol = "/Users/Shane/Documents/PRIM/bcd/build";
-		string outputCov = outputCol + "_cov";
-		string outputHist = outputCol + "_hist";
-		bcd::ImageIO::writeEXR(samplesStats.m_meanImage, outputCol.c_str());
-		bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
-		bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
-	}
-	// Shane */
 
 	bool denoising_set_tiles(device_ptr *buffers, DenoisingTask *task)
 	{
@@ -720,15 +709,51 @@ public:
 		return true;
 	}
 
-	void path_trace(DeviceTask &task, RenderTile &tile, KernelGlobals *kg)
+	// Shane
+	void bcd_denoise_func(DeviceTask &task){
+
+		std::cout << "inside bcd_denoise_func" << std::endl;
+		// std::cout << "image: " << task.sAcc.m_width <<"x" << task.sAcc->m_height << std::endl;
+		bcd::SamplesStatisticsImages samplesStats = task.sAcc->extractSamplesStatistics();
+		std::cout << "after extractSamplesStatistics"<<std::endl;
+		bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage, samplesStats.m_nbOfSamplesImage);
+
+		samplesStats.m_histoImage.clearAndFreeMemory();
+		samplesStats.m_nbOfSamplesImage.clearAndFreeMemory();
+		string outputPath = "/Users/Shane/Documents/PRIM/bcd/";
+		string outputCol = outputPath + "test_denoising.exr";
+		string outputCov = outputPath + "test_denoising_cov.exr";
+		string outputHist = outputPath + "test_denoising_hist.exr";
+		bcd::ImageIO::writeEXR(samplesStats.m_meanImage, outputCol.c_str());
+		bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
+		bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
+	}
+	// Shane */
+
+	/*void update_bcd_inputs(int x, int y, float sampleR, float sampleG, float sampleB){
+
+		float current_valueR = sStats->m_meanImage.getValue(bcd::PixelPosition(x, y), 0); // += sampleR;
+		float current_valueG = sStats->m_meanImage.getValue(bcd::PixelPosition(x, y), 1); // += sampleG;
+		float current_valueB = sStats->m_meanImage.getValue(bcd::PixelPosition(x, y), 2); // += sampleB;
+		sStats->m_meanImage.set(x, y, 0, current_valueR + sampleR);
+		sStats->m_meanImage.set(x, y, 1, current_valueG + sampleG);
+		sStats->m_meanImage.set(x, y, 2, current_valueB + sampleB);
+		std::cout << "inside update_bcd_inputs: "  << std::endl;
+		sAcc->addSample(x, y, sampleR, sampleG, sampleB);
+	}*/
+
+	void path_trace(DeviceTask &task, RenderTile &tile, KernelGlobals *kg)//, bcd::SamplesAccumulator *sAcc)//bcd::SamplesStatisticsImages *sStats)
 	{
 		float *render_buffer = (float*)tile.buffer;
 		int start_sample = tile.start_sample;
 		int end_sample = tile.start_sample + tile.num_samples;
-
-		// Shane
-		// sAcc = new bcd::SamplesAccumulator(task.w, task.h, histoParams);
-
+		// float inv_weight = 1.0f/tile.num_samples;
+		// sStats->m_meanImage.resize(task.w, task.h, 3);
+		// bcd::SamplesAccumulator *sAcc;
+		/*if(task.w != 0 && task.h != 0){
+			bcd_denoise = true;
+			// sAcc = new bcd::SamplesAccumulator(task.w, task.h, histoParams);
+		}*/
 		for(int sample = start_sample; sample < end_sample; sample++) {
 			if(task.get_cancel() || task_pool.canceled()) {
 				if(task.need_finish_queue == false)
@@ -739,9 +764,17 @@ public:
 				for(int x = tile.x; x < tile.x + tile.w; x++) {
 					path_trace_kernel()(kg, render_buffer,
 					                    sample, x, y, tile.offset, tile.stride);
-					 // Shane
-					/*// sAcc->addSample(x, y, render_buffer[0], render_buffer[1], render_buffer[2]);
-					sAcc->addSample(x, y, 0.0f, 1.0f, 0.0f);
+
+					// Shane
+					int step = tile.offset + x + y*tile.stride;
+					step *= kernel_data.film.pass_stride;
+					float sampleR = *(render_buffer +step);
+					float sampleG = *(render_buffer +step +1);
+					float sampleB = *(render_buffer +step +2);
+					task.sAcc->addSample(x, y, sampleR, sampleG, sampleB);
+					//if(bcd_denoise){
+						// update_bcd_inputs(x, y, sampleR*inv_weight, sampleG*inv_weight, sampleB*inv_weight);						
+					//}
 					// Shane */
 				}
 			}
@@ -795,8 +828,10 @@ public:
 
 		KernelGlobals *kg = new ((void*) kgbuffer.device_pointer) KernelGlobals(thread_kernel_globals_init());
 		// Shane
-		sAcc = new bcd::SamplesAccumulator(task.w, task.h, histoParams);
+		// bcd::SamplesAccumulator *sAcc = new bcd::SamplesAccumulator(0, 0, histoParams);
+		// bcd::SamplesStatisticsImages *sStats = new bcd::SamplesStatisticsImages(task.w, task.h, histoParams.m_nbOfBins);
 		// Shane */
+		
 		CPUSplitKernel *split_kernel = NULL;
 		if(use_split_kernel) {
 			split_kernel = new CPUSplitKernel(this);
@@ -822,9 +857,7 @@ public:
 				}
 			}
 			else if(tile.task == RenderTile::DENOISE) {
-				/* // Shane
-				denoise(task, tile);
-				// Shane */
+				denoise(task, denoising, tile);
 			}
 
 			task.release_tile(tile);
@@ -834,8 +867,10 @@ public:
 					break;
 			}
 		}
-		/*// Shane
-		bcd_denoise(sAcc);
+
+		std::cout << "coucou c'est moi: " << std::endl;
+		// Shane
+		bcd_denoise_func(task);
 		// Shane */
 		thread_kernel_globals_free((KernelGlobals*)kgbuffer.device_pointer);
 		kg->~KernelGlobals();

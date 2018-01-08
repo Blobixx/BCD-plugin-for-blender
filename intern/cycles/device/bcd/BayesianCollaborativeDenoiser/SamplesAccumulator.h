@@ -12,7 +12,7 @@
 #include <memory>
 // #include <atomic>
 
-#include "DeepImage.h"
+#include "device/bcd/Common/DeepImage.h"
 
 namespace bcd
 {
@@ -83,7 +83,8 @@ namespace bcd
 	public:
 		SamplesAccumulatorThreadSafe(
 				int i_width, int i_height,
-				const HistogramParameters& i_rHistogramParameters);
+				const HistogramParameters& i_rHistogramParameters) : SamplesAccumulator(i_width,
+																		i_height, i_rHistogramParameters){}
 
 		void addSampleThreadSafely(
 				int i_line, int i_column,

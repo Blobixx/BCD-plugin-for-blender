@@ -23,6 +23,11 @@
 #include "util/util_list.h"
 #include "util/util_task.h"
 
+#include "device/bcd/BayesianCollaborativeDenoiser/SamplesAccumulator.h"
+#include "device/bcd/Common/ImageIO.h"
+#include "device/bcd/Common/DeepImage.h"
+#include "device/bcd/Common/Utils.h"
+
 CCL_NAMESPACE_BEGIN
 
 /* Device Task */
@@ -79,6 +84,11 @@ public:
 	bool need_finish_queue;
 	bool integrator_branched;
 	int2 requested_tile_size;
+
+	// Shane
+	bcd::SamplesAccumulator *sAcc;
+	bcd::HistogramParameters histoParams;
+	// Shane */
 protected:
 	double last_update_time;
 };
