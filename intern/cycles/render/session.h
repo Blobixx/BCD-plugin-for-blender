@@ -27,6 +27,11 @@
 #include "util/util_thread.h"
 #include "util/util_vector.h"
 
+#include "device/bcd/BayesianCollaborativeDenoiser/SamplesAccumulator.h"
+#include "device/bcd/Common/ImageIO.h"
+#include "device/bcd/Common/DeepImage.h"
+#include "device/bcd/Common/Utils.h"
+
 CCL_NAMESPACE_BEGIN
 
 class BufferParams;
@@ -142,6 +147,10 @@ public:
 
 	function<void(RenderTile&)> write_render_tile_cb;
 	function<void(RenderTile&, bool)> update_render_tile_cb;
+
+	// Shane
+	bcd::SamplesAccumulator *sAcc;
+	bool bcd_denoise;
 
 	explicit Session(const SessionParams& params);
 	~Session();

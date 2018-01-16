@@ -81,6 +81,9 @@ Session::Session(const SessionParams& params_)
 
 	/* TODO(sergey): Check if it's indeed optimal value for the split kernel. */
 	max_closure_global = 1;
+
+	// Shane
+	bcd_denoise = false;
 }
 
 Session::~Session()
@@ -120,6 +123,7 @@ Session::~Session()
 	delete display;
 	delete scene;
 	delete device;
+	// delete sAcc; // Shane
 
 	TaskScheduler::exit();
 }
@@ -950,11 +954,8 @@ void Session::render()
 	task.passes_size = tile_manager.params.get_passes_size();
 
 	// Shane
-	// int image_width = display->draw_width;
-	// int image_height = display->draw_height;
-
-	// std::cout << "image: " << image_width << "x" << image_height << std::endl;
-	task.sAcc = new bcd::SamplesAccumulator(1920, 1080, task.histoParams);
+	task.sAcc = sAcc;
+	task.bcd_denoise = bcd_denoise;
 	// Shane */
 	if(params.use_denoising) {
 		task.denoising_radius = params.denoising_radius;

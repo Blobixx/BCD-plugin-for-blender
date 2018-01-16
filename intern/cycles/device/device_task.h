@@ -87,7 +87,9 @@ public:
 
 	// Shane
 	bcd::SamplesAccumulator *sAcc;
-	bcd::HistogramParameters histoParams;
+	// bcd::HistogramParameters histoParams;
+	bool bcd_denoise;
+	void bcd_denoise_func();
 	// Shane */
 protected:
 	double last_update_time;

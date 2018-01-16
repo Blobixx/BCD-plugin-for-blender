@@ -49,6 +49,26 @@ int BlenderSession::current_resumable_chunk = 0;
 int BlenderSession::start_resumable_chunk = 0;
 int BlenderSession::end_resumable_chunk = 0;
 
+// Shane
+void BlenderSession::bcd_denoise_func(){
+
+	std::cout << "inside bcd_denoise_func" << std::endl;
+	// std::cout << "image: " << task.sAcc.m_width <<"x" << task.sAcc->m_height << std::endl;
+	bcd::SamplesStatisticsImages samplesStats = session->sAcc->extractSamplesStatistics();
+	std::cout << "after extractSamplesStatistics"<<std::endl;
+	bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage, samplesStats.m_nbOfSamplesImage);
+
+	samplesStats.m_histoImage.clearAndFreeMemory();
+	samplesStats.m_nbOfSamplesImage.clearAndFreeMemory();
+	string outputPath = "/Users/Shane/Documents/PRIM/bcd/";
+	string outputCol = outputPath + "test_denoising.exr";
+	string outputCov = outputPath + "test_denoising_cov.exr";
+	string outputHist = outputPath + "test_denoising_hist.exr";
+	bcd::ImageIO::writeEXR(samplesStats.m_meanImage, outputCol.c_str());
+	bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
+	bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
+}
+
 BlenderSession::BlenderSession(BL::RenderEngine& b_engine,
                                BL::UserPreferences& b_userpref,
                                BL::BlendData& b_data,
@@ -130,6 +150,15 @@ void BlenderSession::create_session()
 	session->progress.set_update_callback(function_bind(&BlenderSession::tag_redraw, this));
 	session->progress.set_cancel_callback(function_bind(&BlenderSession::test_cancel, this));
 	session->set_pause(session_pause);
+
+	// Shane
+	bcd::HistogramParameters histoParams;
+	if(!b_rv3d && !b_engine.is_preview()){
+		session->sAcc = new bcd::SamplesAccumulator(width, height, histoParams);
+		session->bcd_denoise = true;
+		std::cout << "width x height = " << session->sAcc->getWidth() <<"x"<<session->sAcc->getHeight() << std::endl;
+
+	}
 
 	/* create scene */
 	scene = new Scene(scene_params, session->device);
@@ -430,6 +459,7 @@ void BlenderSession::render()
 		scene->film->tag_passes_update(scene, passes);
 		scene->film->tag_update(scene);
 		scene->integrator->tag_update(scene);
+
 
 		int view_index = 0;
 		for(b_rr.views.begin(b_view_iter); b_view_iter != b_rr.views.end(); ++b_view_iter, ++view_index) {
@@ -877,6 +907,7 @@ bool BlenderSession::draw(int w, int h)
 		draw_params.unbind_display_space_shader_cb = function_bind(&BL::RenderEngine::unbind_display_space_shader, &b_engine);
 	}
 
+	// bcd_denoise_func();
 	return !session->draw(buffer_params, draw_params);
 }
 

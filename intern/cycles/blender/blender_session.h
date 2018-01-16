@@ -94,6 +94,9 @@ public:
 	void update_status_progress();
 	void update_bake_progress();
 
+	// Shane
+	void bcd_denoise_func();
+
 	bool background;
 	Session *session;
 	Scene *scene;

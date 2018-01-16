@@ -64,6 +64,10 @@ namespace bcd
 		/// contrary to SamplesStatisticsImages::getSamplesStatistics which performs a copy.
 		/// After this call, the SamplesAccumulator cannot be used to accumulate more samples, and should be destroyed.
 		SamplesStatisticsImages extractSamplesStatistics();
+		int getWidth(){ return m_width; }
+		int getHeight(){ return m_height; }
+		bool getIsValid(){ return m_isValid; }
+		~SamplesAccumulator();
 
 	private:
 		void computeSampleStatistics(SamplesStatisticsImages& io_sampleStats) const;

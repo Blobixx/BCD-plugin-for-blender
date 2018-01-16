@@ -41,6 +41,15 @@ namespace bcd
 		m_squaredWeightSumsImage.fill(0.f);
 	}
 
+	SamplesAccumulator::~SamplesAccumulator(){
+
+		m_samplesStatisticsImages.m_nbOfSamplesImage.clearAndFreeMemory();
+		m_samplesStatisticsImages.m_meanImage.clearAndFreeMemory();
+		m_samplesStatisticsImages.m_covarImage.clearAndFreeMemory();
+		m_samplesStatisticsImages.m_histoImage.clearAndFreeMemory();
+		m_squaredWeightSumsImage.clearAndFreeMemory();
+	}
+
 	void SamplesAccumulator::addSample(
 			int i_line, int i_column,
 			float i_sampleR, float i_sampleG, float i_sampleB,

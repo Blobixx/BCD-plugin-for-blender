@@ -172,12 +172,13 @@ public:
 	device_vector<TextureInfo> texture_info;
 	bool need_texture_info;
 
-	/* // Shane
-	bcd::HistogramParameters histoParams;
-	bcd::SamplesAccumulator *sAcc;
-	bool bcd_denoise = false;
+	 // Shane
+	// bcd::HistogramParameters histoParams;
+	// bcd::SamplesAccumulator *sAcc;
+	// bool bcd_denoise;
+	thread_mutex bcd_add_sample_mtx;
 	// bcd::SamplesStatisticsImages *sStats;
-	// Shane */
+	// Shane
 #ifdef WITH_OSL
 	OSLGlobals osl_globals;
 #endif
@@ -261,6 +262,7 @@ public:
 		// histoParams.m_gamma = 2.2f;
 		// histoParams.m_maxValue = 2.5f;
 		// sAcc = sAcc = new bcd::SamplesAccumulator(1920, 1080, histoParams);;
+		// bcd_denoise = false;
 		// Shane */
 #define REGISTER_SPLIT_KERNEL(name) split_kernels[#name] = KernelFunctions<void(*)(KernelGlobals*, KernelData*)>(KERNEL_FUNCTIONS(name))
 		REGISTER_SPLIT_KERNEL(path_init);
@@ -710,24 +712,24 @@ public:
 	}
 
 	// Shane
-	void bcd_denoise_func(DeviceTask &task){
+	// void bcd_denoise_func(DeviceTask &task){
 
-		std::cout << "inside bcd_denoise_func" << std::endl;
-		// std::cout << "image: " << task.sAcc.m_width <<"x" << task.sAcc->m_height << std::endl;
-		bcd::SamplesStatisticsImages samplesStats = task.sAcc->extractSamplesStatistics();
-		std::cout << "after extractSamplesStatistics"<<std::endl;
-		bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage, samplesStats.m_nbOfSamplesImage);
+	// 	std::cout << "inside bcd_denoise_func" << std::endl;
+	// 	// std::cout << "image: " << task.sAcc.m_width <<"x" << task.sAcc->m_height << std::endl;
+	// 	bcd::SamplesStatisticsImages samplesStats = task.sAcc->extractSamplesStatistics();
+	// 	std::cout << "after extractSamplesStatistics" << std::endl;
+	// 	bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage, samplesStats.m_nbOfSamplesImage);
 
-		samplesStats.m_histoImage.clearAndFreeMemory();
-		samplesStats.m_nbOfSamplesImage.clearAndFreeMemory();
-		string outputPath = "/Users/Shane/Documents/PRIM/bcd/";
-		string outputCol = outputPath + "test_denoising.exr";
-		string outputCov = outputPath + "test_denoising_cov.exr";
-		string outputHist = outputPath + "test_denoising_hist.exr";
-		bcd::ImageIO::writeEXR(samplesStats.m_meanImage, outputCol.c_str());
-		bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
-		bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
-	}
+	// 	samplesStats.m_histoImage.clearAndFreeMemory();
+	// 	samplesStats.m_nbOfSamplesImage.clearAndFreeMemory();
+	// 	string outputPath = "/Users/Shane/Documents/PRIM/bcd/";
+	// 	string outputCol = outputPath + "test_denoising.exr";
+	// 	string outputCov = outputPath + "test_denoising_cov.exr";
+	// 	string outputHist = outputPath + "test_denoising_hist.exr";
+	// 	bcd::ImageIO::writeEXR(samplesStats.m_meanImage, outputCol.c_str());
+	// 	bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
+	// 	bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
+	// }
 	// Shane */
 
 	/*void update_bcd_inputs(int x, int y, float sampleR, float sampleG, float sampleB){
@@ -747,13 +749,8 @@ public:
 		float *render_buffer = (float*)tile.buffer;
 		int start_sample = tile.start_sample;
 		int end_sample = tile.start_sample + tile.num_samples;
-		// float inv_weight = 1.0f/tile.num_samples;
-		// sStats->m_meanImage.resize(task.w, task.h, 3);
-		// bcd::SamplesAccumulator *sAcc;
-		/*if(task.w != 0 && task.h != 0){
-			bcd_denoise = true;
-			// sAcc = new bcd::SamplesAccumulator(task.w, task.h, histoParams);
-		}*/
+
+		// std::cout << "tile: " << tile.x << ", " << tile.y <<"; " << tile.w << "x" << tile.h << std::endl;
 		for(int sample = start_sample; sample < end_sample; sample++) {
 			if(task.get_cancel() || task_pool.canceled()) {
 				if(task.need_finish_queue == false)
@@ -771,11 +768,17 @@ public:
 					float sampleR = *(render_buffer +step);
 					float sampleG = *(render_buffer +step +1);
 					float sampleB = *(render_buffer +step +2);
-					task.sAcc->addSample(x, y, sampleR, sampleG, sampleB);
-					//if(bcd_denoise){
-						// update_bcd_inputs(x, y, sampleR*inv_weight, sampleG*inv_weight, sampleB*inv_weight);						
-					//}
-					// Shane */
+                    thread_scoped_lock lock(bcd_add_sample_mtx);
+					if(task.bcd_denoise){
+
+						// std::cout << "task.sAcc " <<task.sAcc->getWidth() <<"x" << task.sAcc->getHeight() << std::endl;
+						// std::cout << "m_isValue: " << task.sAcc->getIsValid() << std::endl;
+						// std::cout << "x, y" << x <<", " << y << std::endl;
+						// bcd::SamplesStatisticsImages sStats = task.sAcc->getSamplesStatistics();
+						// std::cout << "m_mean: " << sStats.m_meanImage.getWidth() <<"x"<< sStats.m_meanImage.getHeight() << "x"<< sStats.m_meanImage.getDepth() << std::endl;
+                        task.sAcc->addSample(y, x, sampleR, sampleG, sampleB);
+                         bcd_add_sample_mtx.unlock();
+					}
 				}
 			}
 
@@ -831,7 +834,7 @@ public:
 		// bcd::SamplesAccumulator *sAcc = new bcd::SamplesAccumulator(0, 0, histoParams);
 		// bcd::SamplesStatisticsImages *sStats = new bcd::SamplesStatisticsImages(task.w, task.h, histoParams.m_nbOfBins);
 		// Shane */
-		
+
 		CPUSplitKernel *split_kernel = NULL;
 		if(use_split_kernel) {
 			split_kernel = new CPUSplitKernel(this);
@@ -868,10 +871,13 @@ public:
 			}
 		}
 
-		std::cout << "coucou c'est moi: " << std::endl;
-		// Shane
-		bcd_denoise_func(task);
-		// Shane */
+		if(task.bcd_denoise){
+//             thread_scoped_lock lock(bcd_add_sample_mtx);
+            task.bcd_denoise = false;
+            task.bcd_denoise_func();
+//            bcd_add_sample_mtx.unlock();
+			// delete task.sAcc;
+		}
 		thread_kernel_globals_free((KernelGlobals*)kgbuffer.device_pointer);
 		kg->~KernelGlobals();
 		kgbuffer.free();
