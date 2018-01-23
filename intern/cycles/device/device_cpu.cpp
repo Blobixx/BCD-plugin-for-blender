@@ -763,12 +763,16 @@ public:
 					float sampleB = *(render_buffer +step +2);
                     if(task.bcd_denoise){
 //                    	int height = task.sAcc->getHeight();
-                    	if(task.updatePid){
+
+                    	// useless for now. I work with 1 thread only
+                    	/*if(task.updatePid){
                     		task.thIdSAcc = pthread_self();
                     		task.updatePid = false;
-                    	}
+                    	}*/
 //                        std::cout << task.thIdSAcc << std::endl;
-                        task.sAcc->addSample(y, x, sampleR, sampleG, sampleB);
+
+                    	int m_y = task.sAcc->getHeight() - y -1;
+                        task.sAcc->addSample(m_y, x, sampleR, sampleG, sampleB);
                         callToAddSampleCount++;
 					}
 				}
@@ -866,11 +870,11 @@ public:
         // Shane
         if(task.bcd_denoise){
             // callToAddSampleCount < 165499
-            pthread_t tid = pthread_self();
+            /*pthread_t tid = pthread_self();
             while(pthread_equal(tid, task.thIdSAcc) == 0){
             	// pthread_t tid = pthread_self();
                 // std::cout << "pid: " << tid << ", callToAddSampleCount: " << callToAddSampleCount << std::endl;
-            }
+            }*/
            	std::cout << "callToAddSampleCount: " << callToAddSampleCount << std::endl;
             callToAddSampleCount = 0;
             bcd_denoise_func(task);
