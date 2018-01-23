@@ -37,12 +37,14 @@ DeviceTask::DeviceTask(Type type_)
 : type(type_), x(0), y(0), w(0), h(0), rgba_byte(0), rgba_half(0), buffer(0),
   sample(0), num_samples(1),
   shader_input(0), shader_output(0),
-  shader_eval_type(0), shader_filter(0), shader_x(0), shader_w(0)//, histoParams()
+  shader_eval_type(0), shader_filter(0), shader_x(0), shader_w(0)
 {
 	last_update_time = time_dt();
 	// Shane
 	sAcc = nullptr;
 	bcd_denoise = false;
+	bcd_total_samples = 0;
+	updatePid = true;
 }
 
 int DeviceTask::get_subtask_count(int num, int max_size)
@@ -131,27 +133,6 @@ void DeviceTask::update_progress(RenderTile *rtile, int pixel_samples)
 			last_update_time = current_time;
 		}
 	}
-}
-
-void DeviceTask::bcd_denoise_func(){
-
-	std::cout << "inside bcd_denoise_func" << std::endl;
-    bcd_denoise = false;
-    // std::cout << "image: " << task.sAcc.m_width <<"x" << task.sAcc->m_height << std::endl;
-	bcd::SamplesStatisticsImages samplesStats = sAcc->extractSamplesStatistics();
-//    bcd_denoise = false;
-    std::cout << "after extractSamplesStatistics"<<std::endl;
-	bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage, samplesStats.m_nbOfSamplesImage);
-
-	samplesStats.m_histoImage.clearAndFreeMemory();
-	samplesStats.m_nbOfSamplesImage.clearAndFreeMemory();
-	string outputPath = "/Users/Shane/Documents/PRIM/bcd/";
-	string outputCol = outputPath + "test_denoising.exr";
-	string outputCov = outputPath + "test_denoising_cov.exr";
-	string outputHist = outputPath + "test_denoising_hist.exr";
-	bcd::ImageIO::writeEXR(samplesStats.m_meanImage, outputCol.c_str());
-	bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
-	bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
 }
 
 CCL_NAMESPACE_END

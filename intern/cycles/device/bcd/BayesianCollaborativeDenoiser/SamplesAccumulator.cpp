@@ -32,7 +32,7 @@ namespace bcd
 			m_histogramParameters(i_rHistogramParameters),
 			m_samplesStatisticsImages(i_width, i_height, i_rHistogramParameters.m_nbOfBins),
 			m_squaredWeightSumsImage(i_width, i_height, 1),
-			m_isValid(true)
+			m_isValid(true), done(false)
 	{
 		m_samplesStatisticsImages.m_nbOfSamplesImage.fill(0.f);
 		m_samplesStatisticsImages.m_meanImage.fill(0.f);
@@ -55,6 +55,9 @@ namespace bcd
 			float i_sampleR, float i_sampleG, float i_sampleB,
 			float i_weight)
 	{
+		if(done)
+			return;
+
 		assert(m_isValid);
 
 		const float sample[3] = { i_sampleR, i_sampleG, i_sampleB };
@@ -118,7 +121,8 @@ namespace bcd
 
 	void SamplesAccumulator::computeSampleStatistics(SamplesStatisticsImages& io_sampleStats) const
 	{
-		float mean[3];
+
+        float mean[3];
 		float cov[6];
 
 		for(int line = 0; line < m_height; ++line)

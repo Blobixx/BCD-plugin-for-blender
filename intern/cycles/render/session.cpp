@@ -956,7 +956,11 @@ void Session::render()
 	// Shane
 	task.sAcc = sAcc;
 	task.bcd_denoise = bcd_denoise;
+    if(bcd_denoise){
+        task.bcd_total_samples = task.sAcc->getWidth()*sAcc->getHeight()*tile_manager.state.num_samples;
+    }
 	// Shane */
+
 	if(params.use_denoising) {
 		task.denoising_radius = params.denoising_radius;
 		task.denoising_strength = params.denoising_strength;

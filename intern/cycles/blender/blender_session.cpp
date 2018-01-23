@@ -49,25 +49,6 @@ int BlenderSession::current_resumable_chunk = 0;
 int BlenderSession::start_resumable_chunk = 0;
 int BlenderSession::end_resumable_chunk = 0;
 
-// Shane
-void BlenderSession::bcd_denoise_func(){
-
-	std::cout << "inside bcd_denoise_func" << std::endl;
-	// std::cout << "image: " << task.sAcc.m_width <<"x" << task.sAcc->m_height << std::endl;
-	bcd::SamplesStatisticsImages samplesStats = session->sAcc->extractSamplesStatistics();
-	std::cout << "after extractSamplesStatistics"<<std::endl;
-	bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage, samplesStats.m_nbOfSamplesImage);
-
-	samplesStats.m_histoImage.clearAndFreeMemory();
-	samplesStats.m_nbOfSamplesImage.clearAndFreeMemory();
-	string outputPath = "/Users/Shane/Documents/PRIM/bcd/";
-	string outputCol = outputPath + "test_denoising.exr";
-	string outputCov = outputPath + "test_denoising_cov.exr";
-	string outputHist = outputPath + "test_denoising_hist.exr";
-	bcd::ImageIO::writeEXR(samplesStats.m_meanImage, outputCol.c_str());
-	bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
-	bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
-}
 
 BlenderSession::BlenderSession(BL::RenderEngine& b_engine,
                                BL::UserPreferences& b_userpref,
@@ -455,6 +436,7 @@ void BlenderSession::render()
 		session->params.denoising_feature_strength = get_float(crl, "denoising_feature_strength");
 		session->params.denoising_relative_pca = get_boolean(crl, "denoising_relative_pca");
 
+
 		scene->film->pass_alpha_threshold = b_layer_iter->pass_alpha_threshold();
 		scene->film->tag_passes_update(scene, passes);
 		scene->film->tag_update(scene);
@@ -524,6 +506,7 @@ void BlenderSession::render()
 			break;
 	}
 
+	std::cout << "done rendering image" << std::endl;
 	double total_time, render_time;
 	session->progress.get_time(total_time, render_time);
 	VLOG(1) << "Total render time: " << total_time;
