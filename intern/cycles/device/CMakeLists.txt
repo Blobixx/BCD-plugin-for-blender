@@ -1,5 +1,5 @@
 
-add_subdirectory(bcd/ext/eigen)
+#add_subdirectory(bcd/ext/eigen)
 set(INC
 	..
 	../../glew-mx
@@ -58,6 +58,7 @@ SET(bcd_folder "${CMAKE_CURRENT_SOURCE_DIR}/bcd")
 SET(bayesian_folder "${bcd_folder}/BayesianCollaborativeDenoiser")
 SET(common_folder "${bcd_folder}/Common")
 SET(exr_folder "${common_folder}/exr")
+SET(bcd_cli "${bcd_folder}/bcd_cli")
 
 SET(SRC_BCD
 	${bayesian_folder}/Denoiser.cpp
@@ -72,7 +73,6 @@ SET(SRC_BCD
 	${common_folder}/CovarianceMatrix.cpp
 	${exr_folder}/io_exr.cpp
 	${bayesian_folder}/CudaHistogramDistance.cu
-
 )
 
 SET(SRC_BCD_HEADERS
@@ -82,6 +82,7 @@ SET(SRC_BCD_HEADERS
 	${bayesian_folder}/MultiscaleDenoiser.h
 	${bayesian_folder}/SpikeRemovalFilter.h
 	${bayesian_folder}/SamplesAccumulator.h
+	#${bayesian_folder}/Launch.h
 	${common_folder}/DeepImage.h
 	${common_folder}/Chronometer.h
 	${common_folder}/ImageIO.h
@@ -125,6 +126,8 @@ include_directories(${INC})
 include_directories(SYSTEM ${INC_SYS})
 include_directories(${INC_BCD})
 
-SET(CMAKE_CXX_COMPILER "/usr/local/opt/llvm/bin/clang++")
+#add_compile_options("-libiomp")
 add_compile_options("-fopenmp")
+#link_directories("/usr/local/Cellar/llvm/5.0.0/lib")
 add_library(cycles_device ${SRC} ${SRC_OPENCL} ${SRC_HEADERS} ${SRC_BCD} ${SRC_BCD_HEADERS})
+#target_link_libraries(cycles_device omp)
