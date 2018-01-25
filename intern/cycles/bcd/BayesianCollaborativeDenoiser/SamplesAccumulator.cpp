@@ -7,7 +7,7 @@
 // BSD-style license that can be found in the LICENSE.txt file.
 
 #include "SamplesAccumulator.h"
-#include "CovarianceMatrix.h"
+#include "bcd/Common/CovarianceMatrix.h"
 
 
 #include <cassert>

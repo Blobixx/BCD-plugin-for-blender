@@ -23,10 +23,10 @@
 #include "util/util_list.h"
 #include "util/util_task.h"
 
-#include "device/bcd/BayesianCollaborativeDenoiser/SamplesAccumulator.h"
-#include "device/bcd/Common/ImageIO.h"
-#include "device/bcd/Common/DeepImage.h"
-#include "device/bcd/Common/Utils.h"
+#include "bcd/BayesianCollaborativeDenoiser/SamplesAccumulator.h"
+#include "bcd/Common/ImageIO.h"
+#include "bcd/Common/DeepImage.h"
+#include "bcd/Common/Utils.h"
 
 CCL_NAMESPACE_BEGIN
 

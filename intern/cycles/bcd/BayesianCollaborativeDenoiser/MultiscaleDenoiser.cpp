@@ -10,9 +10,9 @@
 
 #include "Denoiser.h"
 
-#include "DeepImage.h"
+#include "bcd/Common/DeepImage.h"
 
-#include "ImageIO.h" // temporary
+#include "bcd/Common/ImageIO.h" // temporary
 #include <sstream>
 
 #include <iostream>

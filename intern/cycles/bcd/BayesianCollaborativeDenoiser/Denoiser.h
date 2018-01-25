@@ -11,7 +11,7 @@
 
 #include "IDenoiser.h"
 
-#include "DeepImage.h"
+#include "bcd/Common/DeepImage.h"
 
 #include <vector>
 #include <memory>

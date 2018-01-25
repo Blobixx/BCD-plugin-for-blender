@@ -8,7 +8,7 @@
 
 #include "SpikeRemovalFilter.h"
 
-#include "DeepImage.h"
+#include "bcd/Common/DeepImage.h"
 
 using std::vector;
 

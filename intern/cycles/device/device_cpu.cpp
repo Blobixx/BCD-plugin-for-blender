@@ -53,7 +53,11 @@
 #include "util/util_system.h"
 #include "util/util_thread.h"
 
-#include "device/bcd/BayesianCollaborativeDenoiser/Launch.h"
+#include "bcd/BayesianCollaborativeDenoiser/SamplesAccumulator.h"
+
+#include "bcd/Common/ImageIO.h"
+#include "bcd/Common/exr/io_exr.h"
+#include "bcd/BayesianCollaborativeDenoiser/Launch.h"
 
 CCL_NAMESPACE_BEGIN
 
@@ -732,8 +736,7 @@ public:
 		std::cout << "after write exr" << std::endl;
 		bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
 		bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
-        const char* arg[] ={"tmp", " -i ", outputCol.c_str(), " -c ", outputCov.c_str(), " -h ", "outputHist "," -o ", outputDenoised.c_str()};
-		bcd::launchBayesianCollaborativeDenoising(4, arg);
+		bcd::launchBayesianCollaborativeDenoising(outputDenoised.c_str(), outputCol.c_str(), outputHist.c_str(), outputCov.c_str());
 		std::cout << "Bcd denoising done !" << std::endl;
 	}
 	// Shane */

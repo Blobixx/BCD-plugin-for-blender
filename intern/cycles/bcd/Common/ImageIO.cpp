@@ -10,7 +10,7 @@
 
 #include "DeepImage.h"
 
-#include "io_exr.h"
+#include "bcd/Common/exr/io_exr.h"
 
 using namespace std;
 

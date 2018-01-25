@@ -1,21 +1,14 @@
 
-#add_subdirectory(bcd/ext/eigen)
+# add_subdirectory(bcd)
 set(INC
 	..
 	../../glew-mx
-
 )
 
 set(INC_SYS
 	${GLEW_INCLUDE_DIR}
 	../../../extern/clew/include
-	../../../extern/Eigen3 # for eigen in denoisingunit.h
-)
-
-set(INC_BCD
-	bcd/BayesianCollaborativeDenoiser
-	bcd/Common
-	bcd/Common/exr
+	../../../extern/Eigen3 # for eigen in launch.h
 )
 
 if(WITH_CUDA_DYNLOAD)
@@ -53,43 +46,36 @@ set(SRC_OPENCL
 	opencl/memory_manager.cpp
 )
 
-
-SET(bcd_folder "${CMAKE_CURRENT_SOURCE_DIR}/bcd")
-SET(bayesian_folder "${bcd_folder}/BayesianCollaborativeDenoiser")
-SET(common_folder "${bcd_folder}/Common")
-SET(exr_folder "${common_folder}/exr")
-SET(bcd_cli "${bcd_folder}/bcd_cli")
-
 SET(SRC_BCD
-	${bayesian_folder}/Denoiser.cpp
-	${bayesian_folder}/DenoisingUnit.cpp
-	${bayesian_folder}/MultiscaleDenoiser.cpp
-	${bayesian_folder}/SpikeRemovalFilter.cpp
-	${bayesian_folder}/SamplesAccumulator.cpp
-	${common_folder}/Chronometer.cpp
-	${common_folder}/ImageIO.cpp
-	${common_folder}/Utils.cpp
-	${common_folder}/DeepImage.hpp
-	${common_folder}/CovarianceMatrix.cpp
-	${exr_folder}/io_exr.cpp
-	${bayesian_folder}/CudaHistogramDistance.cu
+	../bcd/BayesianCollaborativeDenoiser/Denoiser.cpp
+	../bcd/BayesianCollaborativeDenoiser/DenoisingUnit.cpp
+	../bcd/BayesianCollaborativeDenoiser/MultiscaleDenoiser.cpp
+	../bcd/BayesianCollaborativeDenoiser/SpikeRemovalFilter.cpp
+	../bcd/BayesianCollaborativeDenoiser/SamplesAccumulator.cpp
+	../bcd/Common/Chronometer.cpp
+	../bcd/Common/ImageIO.cpp
+	../bcd/Common/Utils.cpp
+	../bcd/Common/DeepImage.hpp
+	../bcd/Common/CovarianceMatrix.cpp
+	../bcd/Common/exr/io_exr.cpp
+	../bcd/BayesianCollaborativeDenoiser/CudaHistogramDistance.cu
 )
 
 SET(SRC_BCD_HEADERS
-	${bayesian_folder}/IDenoiser.h
-	${bayesian_folder}/Denoiser.h
-	${bayesian_folder}/DenoisingUnit.h
-	${bayesian_folder}/MultiscaleDenoiser.h
-	${bayesian_folder}/SpikeRemovalFilter.h
-	${bayesian_folder}/SamplesAccumulator.h
-	#${bayesian_folder}/Launch.h
-	${common_folder}/DeepImage.h
-	${common_folder}/Chronometer.h
-	${common_folder}/ImageIO.h
-	${common_folder}/Utils.h
-	${common_folder}/CovarianceMatrix.h
-	${exr_folder}/io_exr.h
-	${bayesian_folder}/CudaHistogramDistance.h
+	../bcd/BayesianCollaborativeDenoiser/IDenoiser.h
+	../bcd/BayesianCollaborativeDenoiser/Denoiser.h
+	../bcd/BayesianCollaborativeDenoiser/DenoisingUnit.h
+	../bcd/BayesianCollaborativeDenoiser/MultiscaleDenoiser.h
+	../bcd/BayesianCollaborativeDenoiser/SpikeRemovalFilter.h
+	../bcd/BayesianCollaborativeDenoiser/SamplesAccumulator.h
+	../bcd/BayesianCollaborativeDenoiser/Launch.h
+	../bcd/Common/DeepImage.h
+	../bcd/Common/Chronometer.h
+	../bcd/Common/ImageIO.h
+	../bcd/Common/Utils.h
+	../bcd/Common/CovarianceMatrix.h
+	../bcd/Common/exr/io_exr.h
+	../bcd/BayesianCollaborativeDenoiser/CudaHistogramDistance.h
 )
 
 if(WITH_CYCLES_NETWORK)
@@ -124,10 +110,8 @@ endif()
 
 include_directories(${INC})
 include_directories(SYSTEM ${INC_SYS})
-include_directories(${INC_BCD})
 
 #add_compile_options("-libiomp")
 add_compile_options("-fopenmp")
-#link_directories("/usr/local/Cellar/llvm/5.0.0/lib")
+# link_directories("/usr/local/Cellar/llvm/5.0.0/lib")
 add_library(cycles_device ${SRC} ${SRC_OPENCL} ${SRC_HEADERS} ${SRC_BCD} ${SRC_BCD_HEADERS})
-#target_link_libraries(cycles_device omp)

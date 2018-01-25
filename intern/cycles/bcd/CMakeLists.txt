@@ -8,7 +8,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
 
-PROJECT(BayesianCollaborativeDenoising)
+#PROJECT(BayesianCollaborativeDenoising)
 
 OPTION(BCD_BUILD_GUI "Build a GUI executable for bcd, using library NanoGUI" OFF)
 OPTION(BCD_USE_CUDA "Use CUDA for accelerating computations" ON)
@@ -19,7 +19,7 @@ SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH} )
 # Set the default build to Release.  Note this doesn't do anything for the VS
 # default build target which defaults to Debug when you first start it.
 IF(NOT CMAKE_BUILD_TYPE)
-	SET(CMAKE_BUILD_TYPE "Release" CACHE STRING
+	SET(CMAKE_BUILD_TYPE "Debug" CACHE STRING
 		"Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
 		FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
@@ -108,19 +108,19 @@ ENDIF(BCD_USE_CUDA)
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 SET(bcd_folder_name "BayesianCollaborativeDenoiser")
-SET(bcd_src_dir "${CMAKE_SOURCE_DIR}/intern/cycles/bcd/src")
+SET(bcd_src_dir "${CMAKE_SOURCE_DIR}/intern/cycles/bcd")
 SET(bcd_folder "${bcd_src_dir}/${bcd_folder_name}")
-SET(common_folder "${bcd_src_dir}/Common")
+SET(common_folder "Common")
 SET(exr_folder "${common_folder}/exr")
 
 
 SET(bcd_library "")
 
 #MESSAGE(STATUS "Entering subdirectory 'ext'")
-ADD_SUBDIRECTORY(ext)
+#ADD_SUBDIRECTORY(ext)
 
 #MESSAGE(STATUS "Entering subdirectory '${bcd_folder_name}'")
-ADD_SUBDIRECTORY(${bcd_folder_name})
+#ADD_SUBDIRECTORY(${bcd_folder_name})
 
 #MESSAGE(STATUS "Entering subdirectory 'bcd_cli'")
 # ADD_SUBDIRECTORY(bcd_cli)
@@ -135,3 +135,42 @@ ELSE(BCD_BUILD_GUI)
 ENDIF(BCD_BUILD_GUI)
 
 #INCLUDE(CPack)
+set(INC
+	..
+	../../../extern/Eigen3
+)
+
+SET(src_files
+	${bcd_folder_name}/Denoiser.cpp
+	${bcd_folder_name}/DenoisingUnit.cpp
+	${bcd_folder_name}/MultiscaleDenoiser.cpp
+	${bcd_folder_name}/SpikeRemovalFilter.cpp
+	${bcd_folder_name}/SamplesAccumulator.cpp
+	${common_folder}/Chronometer.cpp
+	${common_folder}/ImageIO.cpp
+	${common_folder}/Utils.cpp
+	${common_folder}/CovarianceMatrix.cpp
+	${exr_folder}/io_exr.cpp
+)
+SET(header_files
+	${bcd_folder_name}/IDenoiser.h
+	${bcd_folder_name}/Denoiser.h
+	${bcd_folder_name}/DenoisingUnit.h
+	${bcd_folder_name}/MultiscaleDenoiser.h
+	${bcd_folder_name}/SpikeRemovalFilter.h
+	${bcd_folder_name}/SamplesAccumulator.h
+	${bcd_folder_name}/Launch.h
+	${common_folder}/DeepImage.h
+	${common_folder}/Chronometer.h
+	${common_folder}/ImageIO.h
+	${common_folder}/Utils.h
+	${common_folder}/CovarianceMatrix.h
+	${exr_folder}/io_exr.h
+)
+SET(header_implementation_files
+	${common_folder}/DeepImage.hpp
+)
+
+include_directories(${INC})
+add_compile_options("-fopenmp")
+add_library(bcd_library ${src_files} ${header_files} ${header_implementation_files})

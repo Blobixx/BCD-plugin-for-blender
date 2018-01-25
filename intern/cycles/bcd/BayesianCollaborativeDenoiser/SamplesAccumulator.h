@@ -12,7 +12,7 @@
 #include <memory>
 // #include <atomic>
 
-#include "device/bcd/Common/DeepImage.h"
+#include "bcd/Common/DeepImage.h"
 
 namespace bcd
 {

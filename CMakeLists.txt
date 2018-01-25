@@ -28,7 +28,7 @@
 # all out-of-source builds will use the CMakeCache.txt file there and even
 # build the libs and objects in it.
 set(CMAKE_CXX_COMPILER "/usr/local/opt/llvm/bin/clang++")
-#set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fopenmp")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fopenmp")
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 	if(NOT DEFINED WITH_IN_SOURCE_BUILD)
 		message(FATAL_ERROR

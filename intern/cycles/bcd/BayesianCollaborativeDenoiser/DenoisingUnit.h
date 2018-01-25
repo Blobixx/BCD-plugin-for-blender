@@ -11,15 +11,15 @@
 
 //#define COMPUTE_DENOISING_STATS
 
-#include "CovarianceMatrix.h"
-#include "DeepImage.h"
+#include "bcd/Common/CovarianceMatrix.h"
+#include "bcd/Common/DeepImage.h"
 
 #ifdef COMPUTE_DENOISING_STATS
-#include "Chronometer.h"
+#include "bcd/Common/Chronometer.h"
 #endif
 
-#include "Eigen/Eigenvalues"
-#include "Eigen/Dense"
+#include <Eigen/Eigenvalues>
+#include <Eigen/Dense>
 
 #include <vector>
 #include <array>

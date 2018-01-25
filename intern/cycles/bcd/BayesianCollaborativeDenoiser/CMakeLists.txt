@@ -69,6 +69,7 @@ SET(header_files
 	MultiscaleDenoiser.h
 	SpikeRemovalFilter.h
 	SamplesAccumulator.h
+	Launch.h
 	${common_folder}/DeepImage.h
 	${common_folder}/Chronometer.h
 	${common_folder}/ImageIO.h
@@ -108,4 +109,4 @@ target_link_libraries(${target_name}
 INSTALL(TARGETS ${target_name} ARCHIVE DESTINATION lib)
 
 # SET(bcd_library ${target_name} PARENT_SCOPE)
-
+add_library(bcd_library ${src_files} ${header_files} ${header_implementation_files})
