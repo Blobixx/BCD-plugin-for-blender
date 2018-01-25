@@ -558,14 +558,15 @@ namespace bcd
 	int launchBayesianCollaborativeDenoising(const char* m_denoisedOutputFilePath,
 			const char* m_colorImage, const char* m_histogramImage, const char* m_covarianceImage,
 			float m_histogramPatchDistanceThreshold = 1.f,
-			int m_patchRadius = 1, int m_searchWindowRadius = 6,
+			int m_patchRadius = 1,
+			int m_searchWindowRadius = 6,
 			float m_minEigenValue = 1.e-8f,
 			bool m_useRandomPixelOrder = false,
 			bool m_prefilterSpikes = false,
 			float m_prefilterThresholdStDevFactor = 2.f,
 			float m_markedPixelsSkippingProbability = 1.f,
 			int m_nbOfScales = 3,
-			int m_nbOfCores = 0,
+			int m_nbOfCores = 2,
 			bool m_useCuda = true)
 	{
 		ProgramArguments programArgs;
@@ -573,7 +574,8 @@ namespace bcd
 		if(!parseProgramArguments(programArgs, m_denoisedOutputFilePath,
 			m_colorImage, m_histogramImage, m_covarianceImage,
 			m_histogramPatchDistanceThreshold,
-			m_patchRadius, m_searchWindowRadius,
+			m_patchRadius,
+			m_searchWindowRadius,
 			m_minEigenValue,
 			m_useRandomPixelOrder,
 			m_prefilterSpikes,
@@ -586,7 +588,8 @@ namespace bcd
 				return 1;
 		}
 
-
+		std::cout << "nbOfCores = " << programArgs.m_nbOfCores << std::endl;
+		std::cout << "useRandomPixelOrder = " << programArgs.m_useRandomPixelOrder << std::endl;
 
 		if(programArgs.m_prefilterSpikes)
 			SpikeRemovalFilter::filter(

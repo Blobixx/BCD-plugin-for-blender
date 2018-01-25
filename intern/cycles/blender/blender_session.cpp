@@ -136,7 +136,7 @@ void BlenderSession::create_session()
 	bcd::HistogramParameters histoParams;
 	if(!b_rv3d && !b_engine.is_preview()){
 		session->sAcc = new bcd::SamplesAccumulator(width, height, histoParams);
-		session->bcd_denoise = true;
+		// session->bcd_denoise = true;
 		std::cout << "width x height = " << session->sAcc->getWidth() <<"x"<<session->sAcc->getHeight() << std::endl;
 
 	}
@@ -436,6 +436,21 @@ void BlenderSession::render()
 		session->params.denoising_feature_strength = get_float(crl, "denoising_feature_strength");
 		session->params.denoising_relative_pca = get_boolean(crl, "denoising_relative_pca");
 
+		// Shane
+		// session->params.denoising_algorithm = (DenoisingAlgorithm)get_enum(crl, "denoising_algorithm");
+		session->params.bcd_denoise = get_boolean(crl, "bcd_denoise") && !b_rv3d && !b_engine.is_preview() ;
+		session->params.bcd_denoising_histogram_path_distance_threshold = get_float(crl, "bcd_denoising_histogram_path_distance_threshold");
+	 	session->params.bcd_denoising_radius_search_windows = get_int(crl, "bcd_denoising_radius_search_windows" );
+		session->params.bcd_denoising_random_pixel_order = get_boolean(crl, "bcd_denoising_random_pixel_order");
+	 	session->params.bcd_denoising_radius_patches = get_int(crl, "bcd_denoising_radius_patches");
+		session->params.bcd_denoising_spike_filtering = get_boolean(crl, "bcd_denoising_spike_filtering");
+		session->params.bcd_denoising_factor = get_float(crl, "bcd_denoising_factor");
+		session->params.bcd_denoising_skipping_probability = get_float(crl, "bcd_denoising_skipping_probability");
+	 	session->params.bcd_denoising_scales = get_int(crl, "bcd_denoising_scales");
+		session->params.bcd_denoising_use_cuda = get_boolean(crl, "bcd_denoising_use_cuda");
+	 	session->params.bcd_denoising_nb_cores = get_int(crl, "bcd_denoising_nb_cores");
+		session->params.bcd_denoising_eigen_value = get_float(crl, "bcd_denoising_eigen_value");
+		// Shane */
 
 		scene->film->pass_alpha_threshold = b_layer_iter->pass_alpha_threshold();
 		scene->film->tag_passes_update(scene, passes);
@@ -506,7 +521,9 @@ void BlenderSession::render()
 			break;
 	}
 
+	// Shane
 	std::cout << "done rendering image" << std::endl;
+
 	double total_time, render_time;
 	session->progress.get_time(total_time, render_time);
 	VLOG(1) << "Total render time: " << total_time;
@@ -890,7 +907,6 @@ bool BlenderSession::draw(int w, int h)
 		draw_params.unbind_display_space_shader_cb = function_bind(&BL::RenderEngine::unbind_display_space_shader, &b_engine);
 	}
 
-	// bcd_denoise_func();
 	return !session->draw(buffer_params, draw_params);
 }
 

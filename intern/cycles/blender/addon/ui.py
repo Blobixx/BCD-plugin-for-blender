@@ -613,69 +613,85 @@ class CYCLES_RENDER_PT_denoising(CyclesButtonsPanel, Panel):
 
         layout.active = crl.use_denoising
 
-        # layout.active = crl.use_denoising and not cscene.use_progressive_refine
+        split = layout.split()
 
-        split = layout.split(percentage=1 / 3)
-        split.label("Algorithm:")
-        row = split.row()
-        row.prop(crl, "denoising_algorithm", text="")
+        col = split.column()
+        sub = col.column(align=True)
+        sub.prop(crl, "denoising_radius", text="Radius")
+        sub.prop(crl, "denoising_strength", slider=True, text="Strength")
+
+        col = split.column()
+        sub = col.column(align=True)
+        sub.prop(crl, "denoising_feature_strength", slider=True, text="Feature Strength")
+        sub.prop(crl, "denoising_relative_pca")
+
+        layout.separator()
+
+        row = layout.row()
+        row.label(text="Diffuse:")
+        sub = row.row(align=True)
+        sub.prop(crl, "denoising_diffuse_direct", text="Direct", toggle=True)
+        sub.prop(crl, "denoising_diffuse_indirect", text="Indirect", toggle=True)
+
+        row = layout.row()
+        row.label(text="Glossy:")
+        sub = row.row(align=True)
+        sub.prop(crl, "denoising_glossy_direct", text="Direct", toggle=True)
+        sub.prop(crl, "denoising_glossy_indirect", text="Indirect", toggle=True)
+
+        row = layout.row()
+        row.label(text="Transmission:")
+        sub = row.row(align=True)
+        sub.prop(crl, "denoising_transmission_direct", text="Direct", toggle=True)
+        sub.prop(crl, "denoising_transmission_indirect", text="Indirect", toggle=True)
+
+        row = layout.row()
+        row.label(text="Subsurface:")
+        sub = row.row(align=True)
+        sub.prop(crl, "denoising_subsurface_direct", text="Direct", toggle=True)
+        sub.prop(crl, "denoising_subsurface_indirect", text="Indirect", toggle=True)
+
+class CYCLES_RENDER_PT_bcd_denoising(CyclesButtonsPanel, Panel):
+    bl_label = "BCD Denoiser"
+    bl_context = "render_layer"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        rd = context.scene.render
+        rl = rd.layers.active
+        crl = rl.cycles
+        cscene = context.scene.cycles
+        layout = self.layout
+
+        layout.prop(crl, "bcd_denoise", text="")
+
+    def draw(self, context):
+        layout = self.layout
+
+        scene = context.scene
+        cscene = scene.cycles
+        rd = scene.render
+        rl = rd.layers.active
+        crl = rl.cycles
+
+        layout.active = crl.bcd_denoise
 
         split = layout.split()
-        if (crl.denoising_algorithm == "BCD"):
+        
+        col = split.column()
+        col.prop(crl, "bcd_denoising_histogram_path_distance_threshold", text="Path Threshold")
+        col.prop(crl, "bcd_denoising_radius_search_windows", text="Radius Search Windows")
+        col.prop(crl, "bcd_denoising_radius_patches")
+        col.prop(crl, "bcd_denoising_factor", text="Factor")
+        col.prop(crl, "bcd_denoising_skipping_probability", text="Skipping")
+        col.prop(crl, "bcd_denoising_eigen_value")
 
-            col = split.column()
-            col.prop(crl, "bcd_denoising_histogram_path_distance_threshold", text="Path Threshold")
-            col.prop(crl, "bcd_denoising_radius_search_windows", text="Radius Search Windows")
-            col.prop(crl, "bcd_denoising_radius_patches")
-            col.prop(crl, "bcd_denoising_factor", text="Factor")
-            col.prop(crl, "bcd_denoising_skipping_probability", text="Skipping")
-            col.prop(crl, "bcd_denoising_eigen_value")
-
-            col = split.column()
-            col.prop(crl, "bcd_denoising_random_pixel_order")
-            col.prop(crl, "bcd_denoising_use_cuda")
-            col.prop(crl, "bcd_denoising_spike_filtering")
-            col.prop(crl, "bcd_denoising_scales")
-            col.prop(crl, "bcd_denoising_nb_cores", text="Cores")
-
-        if(crl.denoising_algorithm == "Blender Denoiser"):
-
-            col = split.column()
-            sub = col.column(align=True)
-            sub.prop(crl, "denoising_radius", text="Radius")
-            sub.prop(crl, "denoising_strength", slider=True, text="Strength")
-
-            col = split.column()
-            sub = col.column(align=True)
-            sub.prop(crl, "denoising_feature_strength", slider=True, text="Feature Strength")
-            sub.prop(crl, "denoising_relative_pca")
-
-            layout.separator()
-
-            row = layout.row()
-            row.label(text="Diffuse:")
-            sub = row.row(align=True)
-            sub.prop(crl, "denoising_diffuse_direct", text="Direct", toggle=True)
-            sub.prop(crl, "denoising_diffuse_indirect", text="Indirect", toggle=True)
-
-            row = layout.row()
-            row.label(text="Glossy:")
-            sub = row.row(align=True)
-            sub.prop(crl, "denoising_glossy_direct", text="Direct", toggle=True)
-            sub.prop(crl, "denoising_glossy_indirect", text="Indirect", toggle=True)
-
-            row = layout.row()
-            row.label(text="Transmission:")
-            sub = row.row(align=True)
-            sub.prop(crl, "denoising_transmission_direct", text="Direct", toggle=True)
-            sub.prop(crl, "denoising_transmission_indirect", text="Indirect", toggle=True)
-
-            row = layout.row()
-            row.label(text="Subsurface:")
-            sub = row.row(align=True)
-            sub.prop(crl, "denoising_subsurface_direct", text="Direct", toggle=True)
-            sub.prop(crl, "denoising_subsurface_indirect", text="Indirect", toggle=True)
-
+        col = split.column()
+        col.prop(crl, "bcd_denoising_random_pixel_order")
+        col.prop(crl, "bcd_denoising_use_cuda")
+        col.prop(crl, "bcd_denoising_spike_filtering")
+        col.prop(crl, "bcd_denoising_scales")
+        col.prop(crl, "bcd_denoising_nb_cores", text="Cores")
 
 class CYCLES_PT_post_processing(CyclesButtonsPanel, Panel):
     bl_label = "Post Processing"
@@ -1841,6 +1857,7 @@ classes = (
     CYCLES_RENDER_PT_layer_passes,
     CYCLES_RENDER_PT_views,
     CYCLES_RENDER_PT_denoising,
+    CYCLES_RENDER_PT_bcd_denoising,
     CYCLES_PT_post_processing,
     CYCLES_CAMERA_PT_dof,
     CYCLES_PT_context_material,

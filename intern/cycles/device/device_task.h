@@ -87,11 +87,18 @@ public:
 
 	// Shane
 	bcd::SamplesAccumulator *sAcc;
-	// bcd::HistogramParameters histoParams;
 	bool bcd_denoise;
-	int bcd_total_samples;
-    pthread_t thIdSAcc;
-    bool updatePid;
+	float bcd_denoising_histogram_path_distance_threshold;
+	int bcd_denoising_radius_search_windows;
+	bool bcd_denoising_random_pixel_order;
+	int bcd_denoising_radius_patches;
+	bool bcd_denoising_spike_filtering;
+	float bcd_denoising_factor;
+	float bcd_denoising_skipping_probability;
+	int bcd_denoising_scales;
+	bool bcd_denoising_use_cuda;
+	int bcd_denoising_nb_cores;
+	float bcd_denoising_eigen_value;
 	// Shane */
 protected:
 	double last_update_time;

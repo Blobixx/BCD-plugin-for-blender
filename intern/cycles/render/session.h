@@ -69,6 +69,21 @@ public:
 	float denoising_feature_strength;
 	bool denoising_relative_pca;
 
+	// Shane
+	// 0 blender, 1 bcd
+	bool bcd_denoise;
+	float bcd_denoising_histogram_path_distance_threshold;
+	int bcd_denoising_radius_search_windows;
+	bool bcd_denoising_random_pixel_order;
+	int bcd_denoising_radius_patches;
+	bool bcd_denoising_spike_filtering;
+	float bcd_denoising_factor;
+	float bcd_denoising_skipping_probability;
+	int bcd_denoising_scales;
+	bool bcd_denoising_use_cuda;
+	int bcd_denoising_nb_cores;
+	float bcd_denoising_eigen_value;
+
 	double cancel_timeout;
 	double reset_timeout;
 	double text_timeout;
@@ -95,6 +110,19 @@ public:
 		denoising_strength = 0.0f;
 		denoising_feature_strength = 0.0f;
 		denoising_relative_pca = false;
+
+		bcd_denoise = false;
+		bcd_denoising_histogram_path_distance_threshold = 1.0f;
+	 	bcd_denoising_radius_search_windows = 6;
+		bcd_denoising_random_pixel_order = false;
+	 	bcd_denoising_radius_patches = 1;
+		bcd_denoising_spike_filtering = false;
+		bcd_denoising_factor = 2.0f;
+		bcd_denoising_skipping_probability = 1.0f;
+	 	bcd_denoising_scales = 3;
+		bcd_denoising_use_cuda = true;
+	 	bcd_denoising_nb_cores = 2;
+		bcd_denoising_eigen_value = 0.00000001f;
 
 		display_buffer_linear = false;
 

@@ -736,7 +736,20 @@ public:
 		std::cout << "after write exr" << std::endl;
 		bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
 		bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
-		bcd::launchBayesianCollaborativeDenoising(outputDenoised.c_str(), outputCol.c_str(), outputHist.c_str(), outputCov.c_str());
+		bcd::launchBayesianCollaborativeDenoising(outputDenoised.c_str(),
+											outputCol.c_str(), outputHist.c_str(), outputCov.c_str(),
+											task.bcd_denoising_histogram_path_distance_threshold,
+										 	task.bcd_denoising_radius_patches,
+										 	task.bcd_denoising_radius_search_windows,
+										 	task.bcd_denoising_eigen_value,
+											task.bcd_denoising_random_pixel_order,
+											task.bcd_denoising_spike_filtering,
+											task.bcd_denoising_factor,
+											task.bcd_denoising_skipping_probability,
+										 	task.bcd_denoising_scales,
+										 	task.bcd_denoising_nb_cores,
+											task.bcd_denoising_use_cuda
+											);
 		std::cout << "Bcd denoising done !" << std::endl;
 	}
 	// Shane */

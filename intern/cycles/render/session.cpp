@@ -955,10 +955,10 @@ void Session::render()
 
 	// Shane
 	task.sAcc = sAcc;
-	task.bcd_denoise = bcd_denoise;
-    if(bcd_denoise){
-        task.bcd_total_samples = task.sAcc->getWidth()*sAcc->getHeight()*tile_manager.state.num_samples;
-    }
+	// task.bcd_denoise = bcd_denoise;
+ //    if(bcd_denoise){
+ //        task.bcd_total_samples = task.sAcc->getWidth()*sAcc->getHeight()*tile_manager.state.num_samples;
+ //    }
 	// Shane */
 
 	if(params.use_denoising) {
@@ -967,11 +967,29 @@ void Session::render()
 		task.denoising_feature_strength = params.denoising_feature_strength;
 		task.denoising_relative_pca = params.denoising_relative_pca;
 
+
 		assert(!scene->film->need_update);
 		task.pass_stride = scene->film->pass_stride;
 		task.pass_denoising_data = scene->film->denoising_data_offset;
 		task.pass_denoising_clean = scene->film->denoising_clean_offset;
 	}
+
+	if(params.bcd_denoise){
+
+		task.bcd_denoise = true;
+        task.bcd_denoising_histogram_path_distance_threshold = params.bcd_denoising_histogram_path_distance_threshold;
+	 	task.bcd_denoising_radius_search_windows = params.bcd_denoising_radius_search_windows;
+		task.bcd_denoising_random_pixel_order = params.bcd_denoising_random_pixel_order;
+	 	task.bcd_denoising_radius_patches = params.bcd_denoising_radius_patches;
+		task.bcd_denoising_spike_filtering = params.bcd_denoising_spike_filtering;
+		task.bcd_denoising_factor = params.bcd_denoising_factor;
+		task.bcd_denoising_skipping_probability = params.bcd_denoising_skipping_probability;
+	 	task.bcd_denoising_scales = params.bcd_denoising_scales;
+		task.bcd_denoising_use_cuda = params.bcd_denoising_use_cuda;
+	 	task.bcd_denoising_nb_cores = params.bcd_denoising_nb_cores;
+		task.bcd_denoising_eigen_value = params.bcd_denoising_eigen_value;
+	}
+
 
 	device->task_add(task);
 }

@@ -1277,7 +1277,11 @@ class CyclesRenderLayerSettings(bpy.types.PropertyGroup):
                 items=enum_denoising_algorithm,
                 default="Blender Denoiser",
         )
-
+        cls.bcd_denoise = BoolProperty(
+                name="BCD Denoiser",
+                description="Denoising using BCD",
+                default=False,
+        )
         cls.bcd_denoising_histogram_path_distance_threshold = FloatProperty(
                 name="Threshold",
                 description="Histogram patch distance threshold",
@@ -1327,7 +1331,7 @@ class CyclesRenderLayerSettings(bpy.types.PropertyGroup):
         cls.bcd_denoising_nb_cores= IntProperty(
                 name="Number of cores",
                 description="Number of cores used by OpenMP",
-                default=4,
+                default=2,
         )
         cls.bcd_denoising_eigen_value = FloatProperty(
                 name="Eigen Value",
