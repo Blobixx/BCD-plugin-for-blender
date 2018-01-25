@@ -140,6 +140,11 @@ enum_texture_limit = (
     ('8192', "8192", "Limit texture size to 8192 pixels", 7),
     )
 
+enum_denoising_algorithm = (
+    ('BCD', "BCD", "Bayesian Collaborative Denoising"),
+    ('Blender Denoiser', "Blender Denoiser", "Original algorithm in Blender"),
+    )
+
 class CyclesRenderSettings(bpy.types.PropertyGroup):
     @classmethod
     def register(cls):
@@ -1264,6 +1269,70 @@ class CyclesRenderLayerSettings(bpy.types.PropertyGroup):
                 description="Store the denoising feature passes and the noisy image",
                 default=False,
                 update=update_render_passes,
+        )
+
+        cls.denoising_algorithm = EnumProperty(
+                name="Algorithm",
+                description="Denoising Algorithm",
+                items=enum_denoising_algorithm,
+                default="Blender Denoiser",
+        )
+
+        cls.bcd_denoising_histogram_path_distance_threshold = FloatProperty(
+                name="Threshold",
+                description="Histogram patch distance threshold",
+                default=1.0,
+        )
+        cls.bcd_denoising_radius_search_windows = IntProperty(
+                name="Radius Windows",
+                description="Radius of search windows",
+                default=6,
+        )
+        cls.bcd_denoising_random_pixel_order = BoolProperty(
+                name="Random Pixel Order",
+                description="random pixel order (in case of grid artifacts)",
+                default=False,
+        )
+        cls.bcd_denoising_radius_patches = IntProperty(
+                name="Radius of patches",
+                description="Radius of patches",
+                default=1,
+        )
+        cls.bcd_denoising_spike_filtering = BoolProperty(
+                name="Spike fiiltering",
+                description="Spike removal prefiltering",
+                default=False,
+        )
+        cls.bcd_denoising_factor = FloatProperty(
+                name="Factor",
+                description="Factor that is multiplied by standard deviation to get the threshold for classifying spikes during prefiltering. Put lower value to remove more spikes",
+                default=2.0,
+        )
+        cls.bcd_denoising_skipping_probability = FloatProperty(
+                name="Skipping probability",
+                description="Probability of skipping marked centers of denoised patches. 1 accelerates a lot the computations. 0 helps removing potential grid artifacts",
+                min=0.0, max=1.0,
+                default=1.0,
+        )
+        cls.bcd_denoising_scales = IntProperty(
+                name="Scales",
+                description="Number of Scales for Multi-Scaling",
+                default=3,
+        )
+        cls.bcd_denoising_use_cuda = BoolProperty(
+                name="Use Cuda",
+                description="Number of Scales for Multi-Scaling",
+                default=1,
+        )
+        cls.bcd_denoising_nb_cores= IntProperty(
+                name="Number of cores",
+                description="Number of cores used by OpenMP",
+                default=4,
+        )
+        cls.bcd_denoising_eigen_value = FloatProperty(
+                name="Eigen Value",
+                description="Minimum eigen value for matrix inversion",
+                default=0.00000001,
         )
 
     @classmethod

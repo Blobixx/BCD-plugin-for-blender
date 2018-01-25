@@ -613,43 +613,68 @@ class CYCLES_RENDER_PT_denoising(CyclesButtonsPanel, Panel):
 
         layout.active = crl.use_denoising
 
+        # layout.active = crl.use_denoising and not cscene.use_progressive_refine
+
+        split = layout.split(percentage=1 / 3)
+        split.label("Algorithm:")
+        row = split.row()
+        row.prop(crl, "denoising_algorithm", text="")
+
         split = layout.split()
+        if (crl.denoising_algorithm == "BCD"):
 
-        col = split.column()
-        sub = col.column(align=True)
-        sub.prop(crl, "denoising_radius", text="Radius")
-        sub.prop(crl, "denoising_strength", slider=True, text="Strength")
+            col = split.column()
+            col.prop(crl, "bcd_denoising_histogram_path_distance_threshold", text="Path Threshold")
+            col.prop(crl, "bcd_denoising_radius_search_windows", text="Radius Search Windows")
+            col.prop(crl, "bcd_denoising_radius_patches")
+            col.prop(crl, "bcd_denoising_factor", text="Factor")
+            col.prop(crl, "bcd_denoising_skipping_probability", text="Skipping")
+            col.prop(crl, "bcd_denoising_eigen_value")
 
-        col = split.column()
-        sub = col.column(align=True)
-        sub.prop(crl, "denoising_feature_strength", slider=True, text="Feature Strength")
-        sub.prop(crl, "denoising_relative_pca")
+            col = split.column()
+            col.prop(crl, "bcd_denoising_random_pixel_order")
+            col.prop(crl, "bcd_denoising_use_cuda")
+            col.prop(crl, "bcd_denoising_spike_filtering")
+            col.prop(crl, "bcd_denoising_scales")
+            col.prop(crl, "bcd_denoising_nb_cores", text="Cores")
 
-        layout.separator()
+        if(crl.denoising_algorithm == "Blender Denoiser"):
 
-        row = layout.row()
-        row.label(text="Diffuse:")
-        sub = row.row(align=True)
-        sub.prop(crl, "denoising_diffuse_direct", text="Direct", toggle=True)
-        sub.prop(crl, "denoising_diffuse_indirect", text="Indirect", toggle=True)
+            col = split.column()
+            sub = col.column(align=True)
+            sub.prop(crl, "denoising_radius", text="Radius")
+            sub.prop(crl, "denoising_strength", slider=True, text="Strength")
 
-        row = layout.row()
-        row.label(text="Glossy:")
-        sub = row.row(align=True)
-        sub.prop(crl, "denoising_glossy_direct", text="Direct", toggle=True)
-        sub.prop(crl, "denoising_glossy_indirect", text="Indirect", toggle=True)
+            col = split.column()
+            sub = col.column(align=True)
+            sub.prop(crl, "denoising_feature_strength", slider=True, text="Feature Strength")
+            sub.prop(crl, "denoising_relative_pca")
 
-        row = layout.row()
-        row.label(text="Transmission:")
-        sub = row.row(align=True)
-        sub.prop(crl, "denoising_transmission_direct", text="Direct", toggle=True)
-        sub.prop(crl, "denoising_transmission_indirect", text="Indirect", toggle=True)
+            layout.separator()
 
-        row = layout.row()
-        row.label(text="Subsurface:")
-        sub = row.row(align=True)
-        sub.prop(crl, "denoising_subsurface_direct", text="Direct", toggle=True)
-        sub.prop(crl, "denoising_subsurface_indirect", text="Indirect", toggle=True)
+            row = layout.row()
+            row.label(text="Diffuse:")
+            sub = row.row(align=True)
+            sub.prop(crl, "denoising_diffuse_direct", text="Direct", toggle=True)
+            sub.prop(crl, "denoising_diffuse_indirect", text="Indirect", toggle=True)
+
+            row = layout.row()
+            row.label(text="Glossy:")
+            sub = row.row(align=True)
+            sub.prop(crl, "denoising_glossy_direct", text="Direct", toggle=True)
+            sub.prop(crl, "denoising_glossy_indirect", text="Indirect", toggle=True)
+
+            row = layout.row()
+            row.label(text="Transmission:")
+            sub = row.row(align=True)
+            sub.prop(crl, "denoising_transmission_direct", text="Direct", toggle=True)
+            sub.prop(crl, "denoising_transmission_indirect", text="Indirect", toggle=True)
+
+            row = layout.row()
+            row.label(text="Subsurface:")
+            sub = row.row(align=True)
+            sub.prop(crl, "denoising_subsurface_direct", text="Direct", toggle=True)
+            sub.prop(crl, "denoising_subsurface_indirect", text="Indirect", toggle=True)
 
 
 class CYCLES_PT_post_processing(CyclesButtonsPanel, Panel):
