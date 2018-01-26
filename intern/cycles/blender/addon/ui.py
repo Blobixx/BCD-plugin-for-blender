@@ -40,6 +40,13 @@ class CYCLES_MT_integrator_presets(Menu):
     COMPAT_ENGINES = {'CYCLES'}
     draw = Menu.draw_preset
 
+# Shane
+class CYCLES_MT_bcd_denoising_presets(Menu):
+    bl_label = "BCD Presets"
+    preset_subdir = "cycles/bcd"
+    preset_operator = "script.execute_preset"
+    COMPAT_ENGINES = {'CYCLES'}
+    draw = Menu.draw_preset
 
 class CyclesButtonsPanel:
     bl_space_type = "PROPERTIES"
@@ -675,6 +682,11 @@ class CYCLES_RENDER_PT_bcd_denoising(CyclesButtonsPanel, Panel):
         crl = rl.cycles
 
         layout.active = crl.bcd_denoise
+
+        row = layout.row(align=True)
+        row.menu("CYCLES_MT_bcd_denoising_presets", text=bpy.types.CYCLES_MT_bcd_denoising_presets.bl_label)
+        row.operator("render.cycles_bcd_preset_add", text="", icon="ZOOMIN")
+        row.operator("render.cycles_bcd_preset_add", text="", icon="ZOOMOUT").remove_active = True
 
         split = layout.split()
         
@@ -1847,6 +1859,7 @@ def get_panels():
 classes = (
     CYCLES_MT_sampling_presets,
     CYCLES_MT_integrator_presets,
+    CYCLES_MT_bcd_denoising_presets,
     CYCLES_RENDER_PT_sampling,
     CYCLES_RENDER_PT_geometry,
     CYCLES_RENDER_PT_light_paths,
