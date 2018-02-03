@@ -40,14 +40,6 @@ class CYCLES_MT_integrator_presets(Menu):
     COMPAT_ENGINES = {'CYCLES'}
     draw = Menu.draw_preset
 
-# Shane
-class CYCLES_MT_bcd_denoising_presets(Menu):
-    bl_label = "BCD Presets"
-    preset_subdir = "cycles/bcd"
-    preset_operator = "script.execute_preset"
-    COMPAT_ENGINES = {'CYCLES'}
-    draw = Menu.draw_preset
-
 class CyclesButtonsPanel:
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
@@ -657,53 +649,6 @@ class CYCLES_RENDER_PT_denoising(CyclesButtonsPanel, Panel):
         sub = row.row(align=True)
         sub.prop(crl, "denoising_subsurface_direct", text="Direct", toggle=True)
         sub.prop(crl, "denoising_subsurface_indirect", text="Indirect", toggle=True)
-
-class CYCLES_RENDER_PT_bcd_denoising(CyclesButtonsPanel, Panel):
-    bl_label = "BCD Denoiser"
-    bl_context = "render_layer"
-    bl_options = {'DEFAULT_CLOSED'}
-
-    def draw_header(self, context):
-        rd = context.scene.render
-        rl = rd.layers.active
-        crl = rl.cycles
-        cscene = context.scene.cycles
-        layout = self.layout
-
-        layout.prop(crl, "bcd_denoise", text="")
-
-    def draw(self, context):
-        layout = self.layout
-
-        scene = context.scene
-        cscene = scene.cycles
-        rd = scene.render
-        rl = rd.layers.active
-        crl = rl.cycles
-
-        layout.active = crl.bcd_denoise
-
-        row = layout.row(align=True)
-        row.menu("CYCLES_MT_bcd_denoising_presets", text=bpy.types.CYCLES_MT_bcd_denoising_presets.bl_label)
-        row.operator("render.cycles_bcd_preset_add", text="", icon="ZOOMIN")
-        row.operator("render.cycles_bcd_preset_add", text="", icon="ZOOMOUT").remove_active = True
-
-        split = layout.split()
-        
-        col = split.column()
-        col.prop(crl, "bcd_denoising_histogram_path_distance_threshold", text="Path Threshold")
-        col.prop(crl, "bcd_denoising_radius_search_windows", text="Radius Search Windows")
-        col.prop(crl, "bcd_denoising_radius_patches")
-        col.prop(crl, "bcd_denoising_factor", text="Factor")
-        col.prop(crl, "bcd_denoising_skipping_probability", text="Skipping")
-        col.prop(crl, "bcd_denoising_eigen_value")
-
-        col = split.column()
-        col.prop(crl, "bcd_denoising_random_pixel_order")
-        col.prop(crl, "bcd_denoising_use_cuda")
-        col.prop(crl, "bcd_denoising_spike_filtering")
-        col.prop(crl, "bcd_denoising_scales")
-        col.prop(crl, "bcd_denoising_nb_cores", text="Cores")
 
 class CYCLES_PT_post_processing(CyclesButtonsPanel, Panel):
     bl_label = "Post Processing"
@@ -1859,7 +1804,6 @@ def get_panels():
 classes = (
     CYCLES_MT_sampling_presets,
     CYCLES_MT_integrator_presets,
-    CYCLES_MT_bcd_denoising_presets,
     CYCLES_RENDER_PT_sampling,
     CYCLES_RENDER_PT_geometry,
     CYCLES_RENDER_PT_light_paths,
@@ -1870,7 +1814,6 @@ classes = (
     CYCLES_RENDER_PT_layer_passes,
     CYCLES_RENDER_PT_views,
     CYCLES_RENDER_PT_denoising,
-    CYCLES_RENDER_PT_bcd_denoising,
     CYCLES_PT_post_processing,
     CYCLES_CAMERA_PT_dof,
     CYCLES_PT_context_material,

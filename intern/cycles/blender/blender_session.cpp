@@ -137,7 +137,7 @@ void BlenderSession::create_session()
 	if(!b_rv3d && !b_engine.is_preview()){
 		session->sAcc = new bcd::SamplesAccumulator(width, height, histoParams);
 		// session->bcd_denoise = true;
-		std::cout << "width x height = " << session->sAcc->getWidth() <<"x"<<session->sAcc->getHeight() << std::endl;
+		// std::cout << "width x height = " << session->sAcc->getWidth() <<"x"<<session->sAcc->getHeight() << std::endl;
 
 	}
 
@@ -439,17 +439,17 @@ void BlenderSession::render()
 		// Shane
 		// session->params.denoising_algorithm = (DenoisingAlgorithm)get_enum(crl, "denoising_algorithm");
 		session->params.bcd_denoise = get_boolean(crl, "bcd_denoise") && !b_rv3d && !b_engine.is_preview() ;
-		session->params.bcd_denoising_histogram_path_distance_threshold = get_float(crl, "bcd_denoising_histogram_path_distance_threshold");
-	 	session->params.bcd_denoising_radius_search_windows = get_int(crl, "bcd_denoising_radius_search_windows" );
-		session->params.bcd_denoising_random_pixel_order = get_boolean(crl, "bcd_denoising_random_pixel_order");
-	 	session->params.bcd_denoising_radius_patches = get_int(crl, "bcd_denoising_radius_patches");
-		session->params.bcd_denoising_spike_filtering = get_boolean(crl, "bcd_denoising_spike_filtering");
-		session->params.bcd_denoising_factor = get_float(crl, "bcd_denoising_factor");
-		session->params.bcd_denoising_skipping_probability = get_float(crl, "bcd_denoising_skipping_probability");
-	 	session->params.bcd_denoising_scales = get_int(crl, "bcd_denoising_scales");
-		session->params.bcd_denoising_use_cuda = get_boolean(crl, "bcd_denoising_use_cuda");
-	 	session->params.bcd_denoising_nb_cores = get_int(crl, "bcd_denoising_nb_cores");
-		session->params.bcd_denoising_eigen_value = get_float(crl, "bcd_denoising_eigen_value");
+		// session->params.bcd_denoising_histogram_path_distance_threshold = get_float(crl, "bcd_denoising_histogram_path_distance_threshold");
+	 // 	session->params.bcd_denoising_radius_search_windows = get_int(crl, "bcd_denoising_radius_search_windows" );
+		// session->params.bcd_denoising_random_pixel_order = get_boolean(crl, "bcd_denoising_random_pixel_order");
+	 // 	session->params.bcd_denoising_radius_patches = get_int(crl, "bcd_denoising_radius_patches");
+		// session->params.bcd_denoising_spike_filtering = get_boolean(crl, "bcd_denoising_spike_filtering");
+		// session->params.bcd_denoising_factor = get_float(crl, "bcd_denoising_factor");
+		// session->params.bcd_denoising_skipping_probability = get_float(crl, "bcd_denoising_skipping_probability");
+	 // 	session->params.bcd_denoising_scales = get_int(crl, "bcd_denoising_scales");
+		// session->params.bcd_denoising_use_cuda = get_boolean(crl, "bcd_denoising_use_cuda");
+	 // 	session->params.bcd_denoising_nb_cores = get_int(crl, "bcd_denoising_nb_cores");
+		// session->params.bcd_denoising_eigen_value = get_float(crl, "bcd_denoising_eigen_value");
 		// Shane */
 
 		scene->film->pass_alpha_threshold = b_layer_iter->pass_alpha_threshold();
@@ -520,9 +520,6 @@ void BlenderSession::render()
 		if(session->progress.get_cancel())
 			break;
 	}
-
-	// Shane
-	std::cout << "done rendering image" << std::endl;
 
 	double total_time, render_time;
 	session->progress.get_time(total_time, render_time);

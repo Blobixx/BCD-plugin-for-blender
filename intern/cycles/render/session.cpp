@@ -81,9 +81,6 @@ Session::Session(const SessionParams& params_)
 
 	/* TODO(sergey): Check if it's indeed optimal value for the split kernel. */
 	max_closure_global = 1;
-
-	// Shane
-	bcd_denoise = false;
 }
 
 Session::~Session()
@@ -123,7 +120,6 @@ Session::~Session()
 	delete display;
 	delete scene;
 	delete device;
-	// delete sAcc; // Shane
 
 	TaskScheduler::exit();
 }
@@ -955,11 +951,6 @@ void Session::render()
 
 	// Shane
 	task.sAcc = sAcc;
-	// task.bcd_denoise = bcd_denoise;
- //    if(bcd_denoise){
- //        task.bcd_total_samples = task.sAcc->getWidth()*sAcc->getHeight()*tile_manager.state.num_samples;
- //    }
-	// Shane */
 
 	if(params.use_denoising) {
 		task.denoising_radius = params.denoising_radius;
@@ -975,20 +966,20 @@ void Session::render()
 	}
 
 	if(params.bcd_denoise){
-
 		task.bcd_denoise = true;
-        task.bcd_denoising_histogram_path_distance_threshold = params.bcd_denoising_histogram_path_distance_threshold;
-	 	task.bcd_denoising_radius_search_windows = params.bcd_denoising_radius_search_windows;
-		task.bcd_denoising_random_pixel_order = params.bcd_denoising_random_pixel_order;
-	 	task.bcd_denoising_radius_patches = params.bcd_denoising_radius_patches;
-		task.bcd_denoising_spike_filtering = params.bcd_denoising_spike_filtering;
-		task.bcd_denoising_factor = params.bcd_denoising_factor;
-		task.bcd_denoising_skipping_probability = params.bcd_denoising_skipping_probability;
-	 	task.bcd_denoising_scales = params.bcd_denoising_scales;
-		task.bcd_denoising_use_cuda = params.bcd_denoising_use_cuda;
-	 	task.bcd_denoising_nb_cores = params.bcd_denoising_nb_cores;
-		task.bcd_denoising_eigen_value = params.bcd_denoising_eigen_value;
 	}
+ //        task.bcd_denoising_histogram_path_distance_threshold = params.bcd_denoising_histogram_path_distance_threshold;
+	//  	task.bcd_denoising_radius_search_windows = params.bcd_denoising_radius_search_windows;
+	// 	task.bcd_denoising_random_pixel_order = params.bcd_denoising_random_pixel_order;
+	//  	task.bcd_denoising_radius_patches = params.bcd_denoising_radius_patches;
+	// 	task.bcd_denoising_spike_filtering = params.bcd_denoising_spike_filtering;
+	// 	task.bcd_denoising_factor = params.bcd_denoising_factor;
+	// 	task.bcd_denoising_skipping_probability = params.bcd_denoising_skipping_probability;
+	//  	task.bcd_denoising_scales = params.bcd_denoising_scales;
+	// 	task.bcd_denoising_use_cuda = params.bcd_denoising_use_cuda;
+	//  	task.bcd_denoising_nb_cores = params.bcd_denoising_nb_cores;
+	// 	task.bcd_denoising_eigen_value = params.bcd_denoising_eigen_value;
+	// }
 
 
 	device->task_add(task);

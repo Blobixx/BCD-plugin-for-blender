@@ -1338,6 +1338,12 @@ class CyclesRenderLayerSettings(bpy.types.PropertyGroup):
                 description="Minimum eigen value for matrix inversion",
                 default=0.00000001,
         )
+        cls.bcd_executable_path = StringProperty(
+                name="BCD Path",
+                description="Path to BCD executable",
+                default="/tmp/",
+                subtype='FILE_PATH'
+        )
 
     @classmethod
     def unregister(cls):

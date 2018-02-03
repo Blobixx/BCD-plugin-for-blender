@@ -78,36 +78,10 @@ class AddPresetSampling(AddPresetBase, Operator):
 
     preset_subdir = "cycles/sampling"
 
-class AddPresetBcd(AddPresetBase, Operator):
-    '''Add a Sampling Preset'''
-    bl_idname = "render.cycles_bcd_preset_add"
-    bl_label = "Add BCD Preset"
-    preset_menu = "CYCLES_MT_bcd_denoising_presets"
-
-    preset_defines = [
-        "layers = bpy.context.scene.render.layers.active.cycles"
-    ]
-
-    preset_values = [
-        "layers.bcd_denoising_histogram_path_distance_threshold",
-        "layers.bcd_denoising_radius_search_windows",
-        "layers.bcd_denoising_radius_patches",
-        "layers.bcd_denoising_factor",
-        "layers.bcd_denoising_spike_filtering",
-        "layers.bcd_denoising_eigen_value",
-        "layers.bcd_denoising_random_pixel_order",
-        "layers.bcd_denoising_use_cuda",
-        "layers.bcd_denoising_skipping_probability",
-        "layers.bcd_denoising_scales",
-        "layers.bcd_denoising_nb_cores",
-    ]
-
-    preset_subdir = "cycles/bcd"
 
 classes = (
     AddPresetIntegrator,
     AddPresetSampling,
-    AddPresetBcd,
 )
 
 
