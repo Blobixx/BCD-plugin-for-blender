@@ -123,7 +123,6 @@ Session::~Session()
 	delete display;
 	delete scene;
 	delete device;
-	// delete sAcc; // Shane
 
 	TaskScheduler::exit();
 }
@@ -953,14 +952,6 @@ void Session::render()
 	task.requested_tile_size = params.tile_size;
 	task.passes_size = tile_manager.params.get_passes_size();
 
-	// Shane
-	task.sAcc = sAcc;
-	// task.bcd_denoise = bcd_denoise;
- //    if(bcd_denoise){
- //        task.bcd_total_samples = task.sAcc->getWidth()*sAcc->getHeight()*tile_manager.state.num_samples;
- //    }
-	// Shane */
-
 	if(params.use_denoising) {
 		task.denoising_radius = params.denoising_radius;
 		task.denoising_strength = params.denoising_strength;
@@ -974,8 +965,11 @@ void Session::render()
 		task.pass_denoising_clean = scene->film->denoising_clean_offset;
 	}
 
+	// Shane
+	task.sAcc = sAcc;
 	if(params.bcd_denoise){
 
+		task.bcd_denoised_path = params.bcd_denoised_path;
 		task.bcd_denoise = true;
         task.bcd_denoising_histogram_path_distance_threshold = params.bcd_denoising_histogram_path_distance_threshold;
 	 	task.bcd_denoising_radius_search_windows = params.bcd_denoising_radius_search_windows;

@@ -140,11 +140,6 @@ enum_texture_limit = (
     ('8192', "8192", "Limit texture size to 8192 pixels", 7),
     )
 
-enum_denoising_algorithm = (
-    ('BCD', "BCD", "Bayesian Collaborative Denoising"),
-    ('Blender Denoiser', "Blender Denoiser", "Original algorithm in Blender"),
-    )
-
 class CyclesRenderSettings(bpy.types.PropertyGroup):
     @classmethod
     def register(cls):
@@ -1270,13 +1265,6 @@ class CyclesRenderLayerSettings(bpy.types.PropertyGroup):
                 default=False,
                 update=update_render_passes,
         )
-
-        cls.denoising_algorithm = EnumProperty(
-                name="Algorithm",
-                description="Denoising Algorithm",
-                items=enum_denoising_algorithm,
-                default="Blender Denoiser",
-        )
         cls.bcd_denoise = BoolProperty(
                 name="BCD Denoiser",
                 description="Denoising using BCD",
@@ -1337,6 +1325,12 @@ class CyclesRenderLayerSettings(bpy.types.PropertyGroup):
                 name="Eigen Value",
                 description="Minimum eigen value for matrix inversion",
                 default=0.00000001,
+        )
+        cls.bcd_denoised_path = StringProperty(
+                name="Denoised image path",
+                description="Folder to save denoised image to",
+                default="/tmp/",
+                subtype='FILE_PATH'
         )
 
     @classmethod

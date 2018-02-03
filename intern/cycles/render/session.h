@@ -83,6 +83,7 @@ public:
 	bool bcd_denoising_use_cuda;
 	int bcd_denoising_nb_cores;
 	float bcd_denoising_eigen_value;
+	string bcd_denoised_path;
 
 	double cancel_timeout;
 	double reset_timeout;
@@ -123,6 +124,7 @@ public:
 		bcd_denoising_use_cuda = true;
 	 	bcd_denoising_nb_cores = 2;
 		bcd_denoising_eigen_value = 0.00000001f;
+		bcd_denoised_path = "/tmp/";
 
 		display_buffer_linear = false;
 

@@ -450,6 +450,7 @@ void BlenderSession::render()
 		session->params.bcd_denoising_use_cuda = get_boolean(crl, "bcd_denoising_use_cuda");
 	 	session->params.bcd_denoising_nb_cores = get_int(crl, "bcd_denoising_nb_cores");
 		session->params.bcd_denoising_eigen_value = get_float(crl, "bcd_denoising_eigen_value");
+		session->params.bcd_denoised_path = get_string(crl, "bcd_denoised_path");
 		// Shane */
 
 		scene->film->pass_alpha_threshold = b_layer_iter->pass_alpha_threshold();

@@ -173,14 +173,6 @@ public:
 	device_vector<TextureInfo> texture_info;
 	bool need_texture_info;
 
-	 // Shane
-	// bcd::HistogramParameters histoParams;
-	// bcd::SamplesAccumulator *sAcc;
-	// bool bcd_denoise;
-	thread_mutex bcd_add_sample_mtx;
-	int callToAddSampleCount;
-	// bcd::SamplesStatisticsImages *sStats;
-	// Shane
 #ifdef WITH_OSL
 	OSLGlobals osl_globals;
 #endif
@@ -259,14 +251,6 @@ public:
 		}
 		need_texture_info = false;
 
-		// Shane
-		callToAddSampleCount = 0;
-		// histoParams.m_nbOfBins = 20;
-		// histoParams.m_gamma = 2.2f;
-		// histoParams.m_maxValue = 2.5f;
-		// sAcc = sAcc = new bcd::SamplesAccumulator(1920, 1080, histoParams);;
-		// bcd_denoise = false;
-		// Shane */
 #define REGISTER_SPLIT_KERNEL(name) split_kernels[#name] = KernelFunctions<void(*)(KernelGlobals*, KernelData*)>(KERNEL_FUNCTIONS(name))
 		REGISTER_SPLIT_KERNEL(path_init);
 		REGISTER_SPLIT_KERNEL(scene_intersect);
@@ -720,20 +704,17 @@ public:
            	return ;
         }
         task.sAcc->done = true;
-        std::cout << "inside CPUDevice::bcd_denoise_func, done: "<< std::endl;
 		bcd::SamplesStatisticsImages samplesStats = task.sAcc->extractSamplesStatistics();
-		std::cout << "after extractSamplesStatistics" << std::endl;
 		bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage, samplesStats.m_nbOfSamplesImage);
 
 		samplesStats.m_histoImage.clearAndFreeMemory();
 		samplesStats.m_nbOfSamplesImage.clearAndFreeMemory();
-		string outputPath = "/Users/Shane/Documents/PRIM/bcd/";
-		string outputCol = outputPath + "test_denoising.exr";
-		string outputCov = outputPath + "test_denoising_cov.exr";
-		string outputHist = outputPath + "test_denoising_hist.exr";
-		string outputDenoised = outputPath + "test_denoised.exr";
+		string outputPath = task.bcd_denoised_path;
+		string outputCol = "/tmp/denoising.exr";
+		string outputCov = "/tmp/denoising_cov.exr";
+		string outputHist = "/tmp/denoising_hist.exr";
+		string outputDenoised = outputPath + "denoised.exr";
 		bcd::ImageIO::writeEXR(samplesStats.m_meanImage, outputCol.c_str());
-		std::cout << "after write exr" << std::endl;
 		bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
 		bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
 		bcd::launchBayesianCollaborativeDenoising(outputDenoised.c_str(),
@@ -752,15 +733,13 @@ public:
 											);
 		std::cout << "Bcd denoising done !" << std::endl;
 	}
-	// Shane */
 
-	void path_trace(DeviceTask &task, RenderTile &tile, KernelGlobals *kg)//, bcd::SamplesAccumulator *sAcc)//bcd::SamplesStatisticsImages *sStats)
+	void path_trace(DeviceTask &task, RenderTile &tile, KernelGlobals *kg)
 	{
 		float *render_buffer = (float*)tile.buffer;
 		int start_sample = tile.start_sample;
 		int end_sample = tile.start_sample + tile.num_samples;
 
-        // pthread_t thId = pthread_self();
         for(int sample = start_sample; sample < end_sample; sample++) {
 			if(task.get_cancel() || task_pool.canceled()) {
 				if(task.need_finish_queue == false)
@@ -779,18 +758,8 @@ public:
 					float sampleG = *(render_buffer +step +1);
 					float sampleB = *(render_buffer +step +2);
                     if(task.bcd_denoise){
-//                    	int height = task.sAcc->getHeight();
-
-                    	// useless for now. I work with 1 thread only
-                    	/*if(task.updatePid){
-                    		task.thIdSAcc = pthread_self();
-                    		task.updatePid = false;
-                    	}*/
-//                        std::cout << task.thIdSAcc << std::endl;
-
                     	int m_y = task.sAcc->getHeight() - y -1;
                         task.sAcc->addSample(m_y, x, sampleR, sampleG, sampleB);
-                        callToAddSampleCount++;
 					}
 				}
 			}
@@ -858,10 +827,6 @@ public:
 		RenderTile tile;
 		DenoisingTask denoising(this);
 
-//        if(task.bcd_denoise){
-//            task.thIdSAcc = pthread_self();
-//        }
-
 		while(task.acquire_tile(this, tile)) {
 			if(tile.task == RenderTile::PATH_TRACE) {
 				if(use_split_kernel) {
@@ -886,17 +851,9 @@ public:
 
         // Shane
         if(task.bcd_denoise){
-            // callToAddSampleCount < 165499
-            /*pthread_t tid = pthread_self();
-            while(pthread_equal(tid, task.thIdSAcc) == 0){
-            	// pthread_t tid = pthread_self();
-                // std::cout << "pid: " << tid << ", callToAddSampleCount: " << callToAddSampleCount << std::endl;
-            }*/
-           	std::cout << "callToAddSampleCount: " << callToAddSampleCount << std::endl;
-            callToAddSampleCount = 0;
             bcd_denoise_func(task);
         }
-        // std::cout << "callToAddSampleCount: " << callToAddSampleCount << std::endl;
+
 		thread_kernel_globals_free((KernelGlobals*)kgbuffer.device_pointer);
 		kg->~KernelGlobals();
 		kgbuffer.free();
