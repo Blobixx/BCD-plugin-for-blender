@@ -149,9 +149,10 @@ class CYCLES_RENDER_PT_bcd_denoising(bpy.types.Panel):
         row.operator("render.cycles_bcd_preset_add", text="", icon="ZOOMIN")
         row.operator("render.cycles_bcd_preset_add", text="", icon="ZOOMOUT").remove_active = True
 
+        layout.prop(crl, "bcd_executable_path", text="Path to BCD executable")
         split = layout.split()
         col = split.column()
-        # col.prop(bpy.types.SceneRenderLayer.bcd_denoiser , "bcd_denoiser_histogram_path_distance_threshold", text="Path Threshold")
+        col.prop(crl, "bcd_denoising_histogram_path_distance_threshold", text="Path Threshold")
         col.prop(crl, "bcd_denoising_radius_search_windows", text="Radius Search Windows")
         col.prop(crl, "bcd_denoising_radius_patches")
         col.prop(crl, "bcd_denoising_factor", text="Factor")
@@ -165,16 +166,9 @@ class CYCLES_RENDER_PT_bcd_denoising(bpy.types.Panel):
         col.prop(crl, "bcd_denoising_scales")
         col.prop(crl, "bcd_denoising_nb_cores", text="Cores")
 
+        layout.prop(crl, "bcd_denoised_path", text="Save image to")
         row = layout.row()
         row.operator("cycles.bcd_denoise", text="Denoise Image")
-#        split = row.split(percentage=0.5)
-#        col_left = split.column()
-#        col_right = split.column()
-#
-#        if self.is_left:
-#            col_left.operator("object.pingpong", text="Render")
-#        else:
-#            col_right.operator("object.pingpong", text="Pong")
 
 
 class CYCLES_RENDER_OT_bcd_denoising(bpy.types.Operator):
@@ -189,11 +183,16 @@ class CYCLES_RENDER_OT_bcd_denoising(bpy.types.Operator):
         rl = rd.layers.active
         crl = rl.cycles
         #bpy.ops.render.render()
-        bcdpath = "/Users/Shane/Documents/PRIM/bcd/build/bcd_cli/"
-        color =  "/Users/Shane/Documents/PRIM/bcd/test_denoising.exr"
-        hist = "/Users/Shane/Documents/PRIM/bcd/test_denoising_hist.exr"
-        cov = "/Users/Shane/Documents/PRIM/bcd/test_denoising_cov.exr"
-        denoised = "/Users/Shane/Documents/PRIM/bcd/test_denoised.exr"
+        bcdpath = crl.bcd_executable_path
+        # color =  "/Users/Shane/Documents/PRIM/bcd/test_denoising.exr"
+        # hist = "/Users/Shane/Documents/PRIM/bcd/test_denoising_hist.exr"
+        # cov = "/Users/Shane/Documents/PRIM/bcd/test_denoising_cov.exr"
+        # denoised = "/Users/Shane/Documents/PRIM/bcd/test_denoised.exr"
+        color =  "/tmp/denoising_col.exr"
+        hist = "/tmp/denoising_hist.exr"
+        cov = "/tmp/denoising_cov.exr"
+        denoised = crl.bcd_denoised_path
+        denoised += "denoised.exr"
         bcd_denoising_histogram_path_distance_threshold = crl.bcd_denoising_histogram_path_distance_threshold
         bcd_denoising_radius_search_windows = crl.bcd_denoising_radius_search_windows
         bcd_denoising_radius_patches = crl.bcd_denoising_radius_patches
@@ -211,7 +210,7 @@ class CYCLES_RENDER_OT_bcd_denoising(bpy.types.Operator):
         bcd_denoising_use_cuda = int(bcd_denoising_use_cuda == 'true')
 
         commandline = ""
-        commandline += "./bcd_cli "
+        commandline += bcdpath
         commandline += " -i "
         commandline += color
         commandline += " -c "
@@ -242,12 +241,14 @@ class CYCLES_RENDER_OT_bcd_denoising(bpy.types.Operator):
         commandline += str(bcd_denoising_eigen_value)
         commandline += " --ncores "
         commandline += str(bcd_denoising_nb_cores)
-        file = open("script.sh", "w")
-        file.write("cd "+bcdpath+"\n")
-        file.write(commandline)
-        file.close()
-        os.system("chmod +x script.sh")
-        os.system("./script.sh")
+        # file = open("script.sh", "w")
+        # file.write("cd "+bcdpath+"\n")
+        # file.write(commandline)
+        # print(commandline)
+        # file.close()
+        # os.system("chmod +x script.sh")
+        # os.system("sh ./script.sh")
+        os.system(commandline)
         #os.system("./Users/Shane/Documents/PRIM/bcd/build/bcd_cli/bcd_cli -i /Users/Shane/Documents/PRIM/bcd/test_denoising.exr -h /Users/Shane/Documents/PRIM/bcd/test_denoising_hist.exr -c /Users/Shane/Documents/PRIM/bcd/test_denoising_cov.exr -o /Users/Shane/Documents/PRIM/bcd/test_denoised2.exr")
         img = bpy.data.images.load(denoised)
         bpy.ops.screen.userpref_show('INVOKE_DEFAULT')

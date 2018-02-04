@@ -49,6 +49,8 @@
 
 #include "kernel/split/kernel_split_data_types.h"
 
+#include "bcd/BayesianCollaborativeDenoiser/SamplesAccumulator.h"
+
 CCL_NAMESPACE_BEGIN
 
 #ifndef WITH_CUDA_DYNLOAD
@@ -1503,6 +1505,15 @@ public:
 			                           0, 0, args, 0));
 
 			cuda_assert(cuCtxSynchronize());
+
+			int step = wtile->offset + wtile->x + wtile->y*wtile->stride;
+			float sampleR = *(wtile->buffer +step);
+			float sampleG = *(wtile->buffer +step +1);
+			float sampleB = *(wtile->buffer +step +2);
+            if(task.bcd_denoise){
+            	int m_y = task.sAcc->getHeight() - wtile->y -1;
+                task.sAcc->addSample(m_y, wtile->x, sampleR, sampleG, sampleB);
+			}
 
 			/* Update progress. */
 			rtile.sample = sample + wtile->num_samples;

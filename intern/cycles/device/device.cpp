@@ -32,6 +32,9 @@
 #include "util/util_vector.h"
 #include "util/util_string.h"
 
+#include "bcd/Common/ImageIO.h"
+#include "bcd/Common/exr/io_exr.h"
+
 CCL_NAMESPACE_BEGIN
 
 bool Device::need_types_update = true;
@@ -405,6 +408,23 @@ DeviceInfo Device::get_multi_device(const vector<DeviceInfo>& subdevices, int th
 	}
 
 	return info;
+}
+
+void Device::bcd_denoise_func(DeviceTask &task){
+
+	bcd::SamplesStatisticsImages samplesStats = task.sAcc->extractSamplesStatistics();
+	bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage, samplesStats.m_nbOfSamplesImage);
+
+	samplesStats.m_histoImage.clearAndFreeMemory();
+	samplesStats.m_nbOfSamplesImage.clearAndFreeMemory();
+	string outputPath = "/tmp/";
+	string outputCol = outputPath + "denoising_col.exr";
+	string outputCov = outputPath + "denoising_cov.exr";
+	string outputHist = outputPath + "denoising_hist.exr";
+
+	bcd::ImageIO::writeEXR(samplesStats.m_meanImage, outputCol.c_str());
+	bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
+	bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
 }
 
 void Device::tag_update()

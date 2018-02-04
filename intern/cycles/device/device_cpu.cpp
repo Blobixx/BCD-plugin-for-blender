@@ -55,10 +55,6 @@
 
 #include "bcd/BayesianCollaborativeDenoiser/SamplesAccumulator.h"
 
-#include "bcd/Common/ImageIO.h"
-#include "bcd/Common/exr/io_exr.h"
-#include "bcd/BayesianCollaborativeDenoiser/Launch.h"
-
 CCL_NAMESPACE_BEGIN
 
 class CPUDevice;
@@ -696,42 +692,6 @@ public:
 			}
 		}
 		return true;
-	}
-
-	// Shane
-	void bcd_denoise_func(DeviceTask &task){
-        if(task.sAcc->done){
-           	return ;
-        }
-        task.sAcc->done = true;
-		bcd::SamplesStatisticsImages samplesStats = task.sAcc->extractSamplesStatistics();
-		bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage, samplesStats.m_nbOfSamplesImage);
-
-		samplesStats.m_histoImage.clearAndFreeMemory();
-		samplesStats.m_nbOfSamplesImage.clearAndFreeMemory();
-		string outputPath = "/tmp/";
-		string outputCol = outputPath + "test_denoising.exr";
-		string outputCov = outputPath + "test_denoising_cov.exr";
-		string outputHist = outputPath + "test_denoising_hist.exr";
-		// string outputDenoised = outputPath + "test_denoised.exr";
-		bcd::ImageIO::writeEXR(samplesStats.m_meanImage, outputCol.c_str());
-		bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
-		bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
-		/*bcd::launchBayesianCollaborativeDenoising(outputDenoised.c_str(),
-											outputCol.c_str(), outputHist.c_str(), outputCov.c_str(),
-											task.bcd_denoising_histogram_path_distance_threshold,
-										 	task.bcd_denoising_radius_patches,
-										 	task.bcd_denoising_radius_search_windows,
-										 	task.bcd_denoising_eigen_value,
-											task.bcd_denoising_random_pixel_order,
-											task.bcd_denoising_spike_filtering,
-											task.bcd_denoising_factor,
-											task.bcd_denoising_skipping_probability,
-										 	task.bcd_denoising_scales,
-										 	task.bcd_denoising_nb_cores,
-											task.bcd_denoising_use_cuda
-											);*/
-		// std::cout << "Bcd denoising done !" << std::endl;
 	}
 
 	void path_trace(DeviceTask &task, RenderTile &tile, KernelGlobals *kg)

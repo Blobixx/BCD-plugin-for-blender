@@ -123,7 +123,7 @@ public:
 
 	/* Use OpenSubdiv patch evaluation */
 	bool use_patch_evaluation;
-	
+
 	/* Use Transparent shadows */
 	bool use_transparent;
 
@@ -294,7 +294,7 @@ public:
 	/* open shading language, only for CPU device */
 	virtual void *osl_memory() { return NULL; }
 
-	/* load/compile kernels, must be called before adding tasks */ 
+	/* load/compile kernels, must be called before adding tasks */
 	virtual bool load_kernels(
 	        const DeviceRequestedFeatures& /*requested_features*/)
 	{ return true; }
@@ -304,7 +304,9 @@ public:
 	virtual void task_add(DeviceTask& task) = 0;
 	virtual void task_wait() = 0;
 	virtual void task_cancel() = 0;
-	
+
+	void bcd_denoise_func(DeviceTask &task);
+
 	/* opengl drawing */
 	virtual void draw_pixels(device_memory& mem, int y, int w, int h,
 		int dx, int dy, int width, int height, bool transparent,
