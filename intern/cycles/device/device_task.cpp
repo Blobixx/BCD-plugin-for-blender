@@ -24,11 +24,6 @@
 #include "util/util_algorithm.h"
 #include "util/util_time.h"
 
-// #include "SamplesAccumulator.h"
-// #include "ImageIO.h"
-// #include "DeepImage.h"
-// #include "Utils.h"
-
 CCL_NAMESPACE_BEGIN
 
 /* Device Task */
@@ -40,11 +35,10 @@ DeviceTask::DeviceTask(Type type_)
   shader_eval_type(0), shader_filter(0), shader_x(0), shader_w(0)
 {
 	last_update_time = time_dt();
+
 	// Shane
 	sAcc = nullptr;
 	bcd_denoise = false;
-	// bcd_total_samples = 0;
-	// updatePid = true;
 }
 
 int DeviceTask::get_subtask_count(int num, int max_size)
