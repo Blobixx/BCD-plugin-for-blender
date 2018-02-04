@@ -70,7 +70,6 @@ public:
 	bool denoising_relative_pca;
 
 	// Shane
-	// 0 blender, 1 bcd
 	bool bcd_denoise;
 	float bcd_denoising_histogram_path_distance_threshold;
 	int bcd_denoising_radius_search_windows;
@@ -180,7 +179,6 @@ public:
 
 	// Shane
 	bcd::SamplesAccumulator *sAcc;
-	bool bcd_denoise;
 
 	explicit Session(const SessionParams& params);
 	~Session();

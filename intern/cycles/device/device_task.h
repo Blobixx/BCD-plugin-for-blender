@@ -100,7 +100,7 @@ public:
 	int bcd_denoising_nb_cores;
 	float bcd_denoising_eigen_value;
 	std::string bcd_denoised_path;
-	// Shane */
+
 protected:
 	double last_update_time;
 };

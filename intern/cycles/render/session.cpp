@@ -82,8 +82,6 @@ Session::Session(const SessionParams& params_)
 	/* TODO(sergey): Check if it's indeed optimal value for the split kernel. */
 	max_closure_global = 1;
 
-	// Shane
-	bcd_denoise = false;
 }
 
 Session::~Session()

@@ -43,8 +43,6 @@ DeviceTask::DeviceTask(Type type_)
 	// Shane
 	sAcc = nullptr;
 	bcd_denoise = false;
-	// bcd_total_samples = 0;
-	// updatePid = true;
 }
 
 int DeviceTask::get_subtask_count(int num, int max_size)
