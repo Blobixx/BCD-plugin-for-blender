@@ -15,7 +15,6 @@ set(LIBRARIES
 	cycles_subd
 	cycles_graph
 	cycles_util
-	bcd_library
 	${BLENDER_GL_LIBRARIES}
 	${CYCLES_APP_GLEW_LIBRARY}
 	${PNG_LIBRARIES}
