@@ -159,7 +159,7 @@ SET(header_files
 	${bcd_folder_name}/MultiscaleDenoiser.h
 	${bcd_folder_name}/SpikeRemovalFilter.h
 	${bcd_folder_name}/SamplesAccumulator.h
-	${bcd_folder_name}/Launch.h
+	${bcd_folder_name}/Bcd.h
 	${common_folder}/DeepImage.h
 	${common_folder}/Chronometer.h
 	${common_folder}/ImageIO.h

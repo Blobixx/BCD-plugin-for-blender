@@ -32,6 +32,10 @@
 #include "util/util_vector.h"
 #include "util/util_string.h"
 
+#include "bcd/Common/ImageIO.h"
+#include "bcd/Common/exr/io_exr.h"
+#include "bcd/BayesianCollaborativeDenoiser/Bcd.h"
+
 CCL_NAMESPACE_BEGIN
 
 bool Device::need_types_update = true;
@@ -405,6 +409,37 @@ DeviceInfo Device::get_multi_device(const vector<DeviceInfo>& subdevices, int th
 	}
 
 	return info;
+}
+
+void Device::bcd_denoise_func(DeviceTask &task){
+	bcd::SamplesStatisticsImages samplesStats = task.sAcc->extractSamplesStatistics();
+	bcd::Deepimf histoAndNbOfSamplesImage = bcd::Utils::mergeHistogramAndNbOfSamples(samplesStats.m_histoImage,
+															samplesStats.m_nbOfSamplesImage);
+
+	samplesStats.m_histoImage.clearAndFreeMemory();
+	samplesStats.m_nbOfSamplesImage.clearAndFreeMemory();
+	string outputPath = task.bcd_denoised_path;
+	string outputCol = "/tmp/denoising.exr";
+	string outputCov = "/tmp/denoising_cov.exr";
+	string outputHist = "/tmp/denoising_hist.exr";
+	string outputDenoised = outputPath + "denoised.exr";
+	bcd::ImageIO::writeEXR(samplesStats.m_meanImage, outputCol.c_str());
+	bcd::ImageIO::writeMultiChannelsEXR(samplesStats.m_covarImage, outputCov.c_str());
+	bcd::ImageIO::writeMultiChannelsEXR(histoAndNbOfSamplesImage, outputHist.c_str());
+	bcd::launchBayesianCollaborativeDenoising(outputDenoised.c_str(),
+										outputCol.c_str(), outputHist.c_str(), outputCov.c_str(),
+										task.bcd_denoising_histogram_path_distance_threshold,
+									 	task.bcd_denoising_radius_patches,
+									 	task.bcd_denoising_radius_search_windows,
+									 	task.bcd_denoising_eigen_value,
+										task.bcd_denoising_random_pixel_order,
+										task.bcd_denoising_spike_filtering,
+										task.bcd_denoising_factor,
+										task.bcd_denoising_skipping_probability,
+									 	task.bcd_denoising_scales,
+									 	task.bcd_denoising_nb_cores,
+										task.bcd_denoising_use_cuda
+										);
 }
 
 void Device::tag_update()

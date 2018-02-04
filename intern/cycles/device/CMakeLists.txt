@@ -8,7 +8,7 @@ set(INC
 set(INC_SYS
 	${GLEW_INCLUDE_DIR}
 	../../../extern/clew/include
-	../../../extern/Eigen3 # for eigen in launch.h
+	../../../extern/Eigen3 # for eigen in Bcd.h
 )
 
 if(WITH_CUDA_DYNLOAD)
@@ -68,7 +68,7 @@ SET(SRC_BCD_HEADERS
 	../bcd/BayesianCollaborativeDenoiser/MultiscaleDenoiser.h
 	../bcd/BayesianCollaborativeDenoiser/SpikeRemovalFilter.h
 	../bcd/BayesianCollaborativeDenoiser/SamplesAccumulator.h
-	../bcd/BayesianCollaborativeDenoiser/Launch.h
+	../bcd/BayesianCollaborativeDenoiser/Bcd.h
 	../bcd/Common/DeepImage.h
 	../bcd/Common/Chronometer.h
 	../bcd/Common/ImageIO.h

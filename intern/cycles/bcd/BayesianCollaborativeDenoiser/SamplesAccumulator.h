@@ -68,7 +68,6 @@ namespace bcd
 		int getHeight(){ return m_height; }
 		bool getIsValid(){ return m_isValid; }
 		~SamplesAccumulator();
-		bool done;
 
 	private:
 		void computeSampleStatistics(SamplesStatisticsImages& io_sampleStats) const;

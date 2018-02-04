@@ -30,6 +30,7 @@
 #include "util/util_types.h"
 #include "util/util_vector.h"
 
+
 CCL_NAMESPACE_BEGIN
 
 class Progress;
@@ -304,7 +305,9 @@ public:
 	virtual void task_add(DeviceTask& task) = 0;
 	virtual void task_wait() = 0;
 	virtual void task_cancel() = 0;
-	
+
+	void bcd_denoise_func(DeviceTask &task);
+
 	/* opengl drawing */
 	virtual void draw_pixels(device_memory& mem, int y, int w, int h,
 		int dx, int dy, int width, int height, bool transparent,
